@@ -1,0 +1,35 @@
+From 924eb8b38eef4dab486b68307a27a1f5a99d6b99 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Wed, 1 Aug 2012 13:10:51 +0200
+Subject: [PATCH] board-overo.c: double NAND partition for kernel to 8MB
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ arch/arm/mach-omap2/board-overo.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo.c
+index 779734d..a3f67fe 100644
+--- a/arch/arm/mach-omap2/board-overo.c
++++ b/arch/arm/mach-omap2/board-overo.c
+@@ -269,11 +269,11 @@ static struct mtd_partition overo_nand_partitions[] = {
+ 	{
+ 		.name           = "linux",
+ 		.offset         = MTDPART_OFS_APPEND,	/* Offset = 0x280000 */
+-		.size           = 32 * NAND_BLOCK_SIZE,
++		.size           = 64 * NAND_BLOCK_SIZE,
+ 	},
+ 	{
+ 		.name           = "rootfs",
+-		.offset         = MTDPART_OFS_APPEND,	/* Offset = 0x680000 */
++		.offset         = MTDPART_OFS_APPEND,	/* Offset = 0xA80000 */
+ 		.size           = MTDPART_SIZ_FULL,
+ 	},
+ };
+-- 
+1.7.6.5
+
