@@ -26,8 +26,7 @@ SRC_URI = " \
 "
 
 
-#    \
-#    file://DSS/0001-OMAPDSS-fix-registering-the-vsync-isr-in-apply.patch \
+#    file://DSS/0001-OMAPDSS-fix-registering-the-vsync-isr-in-apply.patch
 
 
 PARALLEL_MAKEINST = ""
