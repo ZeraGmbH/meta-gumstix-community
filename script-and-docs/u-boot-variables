@@ -1,4 +1,4 @@
-U-Boot environment variables often used:
+U-Boot environment variables used often (for further see linux Documentation/kernel-parameters.txt):
 
 * bootdelay:
   Description: Time u-boot waits until it loads the kernel.
@@ -25,4 +25,7 @@ U-Boot environment variables often used:
   setenv nandargs 'setenv bootargs console=${console} ${optargs} mpurate=${mpurate} vram=${vram} omapfb.mode=lcd43:${dvimode} omapdss.def_disp=${defaultdisplay} root=${nandroot} rootfstype=${nandrootfstype}'
   setenv mmcargs 'setenv bootargs console=${console} ${optargs} mpurate=${mpurate} vram=${vram} omapfb.mode=lcd43:${dvimode} omapdss.def_disp=${defaultdisplay} root=${mmcroot} rootfstype=${mmcrootfstype}'
   setenv dvimode 480x272MR-24@60
+
+* screensaver:
+  setenv consoleblank=0
 
