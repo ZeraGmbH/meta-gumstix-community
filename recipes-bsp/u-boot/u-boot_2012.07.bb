@@ -5,7 +5,7 @@ UBOOT_BINARY = "u-boot.img"
 UBOOT_IMAGE = "u-boot-${MACHINE}-${PV}-${PR}.img"
 UBOOT_SYMLINK = "u-boot-${MACHINE}.img"
 
-PR = "r0"
+PR = "r1"
 PV = "2012.07"
 
 COMPATIBLE_MACHINE = "overo"
@@ -17,6 +17,7 @@ SRC_URI = " \
 	file://0004-overo-fix-crashes-for-boards-revision-1.patch \
 	file://0005-include-configs-omap3_overo.h-align-kernel-NAND-part.patch \
 	file://0006-set-ext4-as-default-in-bootparams.patch \
+	file://0007-omap3_overo.h-Add-consoleblank-0-to-default-paramete.patch \
 "
 
 SRCREV = "190649fb4309d1bc0fe7732fd0f951cb6440f935"
