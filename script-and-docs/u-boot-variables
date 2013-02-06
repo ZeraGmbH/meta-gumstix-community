@@ -26,6 +26,6 @@ U-Boot environment variables used often (for further see linux Documentation/ker
   setenv mmcargs 'setenv bootargs console=${console} ${optargs} mpurate=${mpurate} vram=${vram} omapfb.mode=lcd43:${dvimode} omapdss.def_disp=${defaultdisplay} root=${mmcroot} rootfstype=${mmcrootfstype}'
   setenv dvimode 480x272MR-24@60
 
-* screensaver:
-  setenv consoleblank=0
+* screensaver off (consoleblank):
+  setenv console=ttyO2,115200n8 consoleblank=0
 
