@@ -1,7 +1,7 @@
-#! /bin/sh
+#! /bin/bash
 
 # part-card.sh
-# (c) Copyright 2012 Andreas Müller <schnitzeltony@gmx.de>
+# (c) Copyright 2013 Andreas Müller <schnitzeltony@googlemail.com>
 # Licensed under terms of GPLv2
 #
 # This script prepares partitions on SDCards. It wraps
@@ -92,7 +92,7 @@ run_root() {
 }
 
 
-source `dirname $0`/tools.inc
+. `dirname $0`/tools.inc
 DevicePath=$1
 RootfsType=$2
 # On the 1st call: run user

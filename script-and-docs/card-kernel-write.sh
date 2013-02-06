@@ -1,7 +1,7 @@
-#! /bin/sh
+#! /bin/bash
 
 # card-kernel-write.sh
-# (c) Copyright 2012 Andreas Müller <schnitzeltony@gmx.de>
+# (c) Copyright 2013 Andreas Müller <schnitzeltony@googlemail.com>
 # Licensed under terms of GPLv2
 #
 # This script writes kernel+modules to SDCard. To
@@ -128,7 +128,7 @@ run_root() {
 	rm -rf /tmp/tmp_mount$$
 }
 
-source `dirname $0`/tools.inc
+. `dirname $0`/tools.inc
 
 if [ -z $MACHINE ]; then
 	MACHINE=$DEFAULT_MACHINE
