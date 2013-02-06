@@ -1,7 +1,7 @@
-#! /bin/sh
+#! /bin/bash
 
 # tools.inc
-# (c) Copyright 2012 Andreas Müller <schnitzeltony@gmx.de>
+# (c) Copyright 2013 Andreas Müller <schnitzeltony@googlemail.com>
 # Licensed under terms of GPLv2
 #
 # This script contains some helper functions and can be sourced by other 
@@ -10,6 +10,7 @@
 # SelectCardDevice() creates a dialog to select one of all available removable
 # devices. The path to the selected device is stored in the variale DevicePath.
 SelectCardDevice() {
+	strSelection=""
 	iCount=0
 	for dev in /dev/sd[a-z] ; do
 		DeviceFile=`basename $dev`
