@@ -5,7 +5,7 @@ COMPATIBLE_MACHINE_overo = "(overo)"
 
 PRINC := "${@int(PRINC) + 1}"
 
-PV = "${KERNEL_PV_MAINLINE_32}"
+PV_overo = "${KERNEL_PV_MAINLINE_32}"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/linux-mainline-3.2:${THISDIR}/splash:"
 
