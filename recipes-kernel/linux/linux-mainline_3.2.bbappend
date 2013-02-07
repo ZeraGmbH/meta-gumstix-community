@@ -6,7 +6,7 @@ COMPATIBLE_MACHINE_overo = "(overo)"
 # We need our own increment
 MACHINE_KERNEL_PR_append = "6"
 
-PV = "${KERNEL_PV_MAINLINE_32}"
+PV_overo = "${KERNEL_PV_MAINLINE_32}"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/linux-mainline-3.2:${THISDIR}/splash:"
 
