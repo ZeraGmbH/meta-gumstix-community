@@ -1,0 +1,30 @@
+From 5803db60dc593f93d7df967b6f6a0568daaddc89 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Mon, 28 Jan 2013 09:31:11 +0100
+Subject: [PATCH 7/7] omap3_overo.h: Add consoleblank=0 to default parameters
+ to avoid screensaver
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ include/configs/omap3_overo.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/include/configs/omap3_overo.h b/include/configs/omap3_overo.h
+index ece4bdc..e8bae0a 100644
+--- a/include/configs/omap3_overo.h
++++ b/include/configs/omap3_overo.h
+@@ -148,7 +148,7 @@
+ 
+ #define CONFIG_EXTRA_ENV_SETTINGS \
+ 	"loadaddr=0x82000000\0" \
+-	"console=ttyO2,115200n8\0" \
++	"console=ttyO2,115200n8 consoleblank=0\0" \
+ 	"mpurate=500\0" \
+ 	"optargs=\0" \
+ 	"vram=12M\0" \
+-- 
+1.7.6.5
+
