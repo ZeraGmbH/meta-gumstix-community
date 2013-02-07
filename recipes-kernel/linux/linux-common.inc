@@ -1,7 +1,7 @@
 DESCRIPTION = "Linux kernel for gumstix overo"
 
 DEPENDS += '${@base_conditional("FORCE_DYN_LINUX_LIBC", "1", "linux-libc-headers", "", d)}'
-SRCREV = "${PREF_KERNEL_GIT_SRCREV}"
+SRCREV_overo = "${PREF_KERNEL_GIT_SRCREV}"
 
 FILESPATH =. "${FILE_DIRNAME}/splash:"
 OVERO_BOOT_SPLASH ??= "file://logo_linux_clut224.ppm"
