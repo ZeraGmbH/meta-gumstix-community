@@ -15,7 +15,7 @@ SelectCardDevice() {
 	for dev in /dev/sd[a-z] ; do
 		DeviceFile=`basename $dev`
 		# we are only interested in removable devices
-		if [ `cat  /sys/block/$DeviceFile/removable` = '1' ]; then
+		if [ `cat  /sys/block/$DeviceFile/removable` = '1' ] && [ `cat  /sys/block/$DeviceFile/size` -gt "0" ]; then
 			iCount=`expr $iCount + 1`
 			DevicePathArr[${iCount}]=$dev
 			strSelection="$strSelection $iCount $dev"
