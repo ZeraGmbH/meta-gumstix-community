@@ -31,10 +31,10 @@ index d4c273a..220d739 100644
  	},
  };
  
-+static int __devinit ads7846_filter_init(const struct ads7846_platform_data *pdata,
++static int ads7846_filter_init(const struct ads7846_platform_data *pdata,
 +				 void **filter_data);
 +static int ads7846_filter(void *filter_data, int data_idx, int *val);
-+static void __devexit ads7846_filtercleanup(void *filter_data);
++static void ads7846_filtercleanup(void *filter_data);
 +
 +/* don't touch this unless ads7846 has changed ! */
 +#define COUNT_MEAS_TYPES	4
@@ -135,7 +135,7 @@ index d4c273a..220d739 100644
  	platform_device_register(&vads7846_device);
  }
  
-+static int __devinit ads7846_filter_init(const struct ads7846_platform_data *pdata,
++static int ads7846_filter_init(const struct ads7846_platform_data *pdata,
 +				 void **filter_data)
 +{
 +	struct ads7846filter *filterdata;
@@ -150,7 +150,7 @@ index d4c273a..220d739 100644
 +	return 0;
 +}
 +
-+static void __devexit ads7846_filtercleanup(void *filter_data)
++static void ads7846_filtercleanup(void *filter_data)
 +{
 +	kfree(filter_data);
 +}
