@@ -7,7 +7,7 @@ KERNEL_GIT_URI_MAINLINE_36        = "git://git.kernel.org/pub/scm/linux/kernel/g
 KERNEL_GIT_SRCREV_MAINLINE_36     = "3820288942d1c1524c3ee85cbf503fee1533cfc3"
 KERNEL_PV_MAINLINE_36             = "3.6.6"
 
-KERNEL_GIT_URI_MAINLINE_38        = "git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git;branch=master;protocol=git"
+KERNEL_GIT_URI_MAINLINE_38        = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git;branch=linux-3.8.y;protocol=git"
 KERNEL_GIT_SRCREV_MAINLINE_38     = "19f949f52599ba7c3f67a5897ac6be14bfcb1200"
 KERNEL_PV_MAINLINE_38             = "3.8.0"
 
