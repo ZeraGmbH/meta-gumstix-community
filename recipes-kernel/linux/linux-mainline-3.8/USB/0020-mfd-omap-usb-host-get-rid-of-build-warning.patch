@@ -1,0 +1,35 @@
+From d4c26eaba96ad4dd4386ff95c9f8968fa534149b Mon Sep 17 00:00:00 2001
+From: Roger Quadros <rogerq@ti.com>
+Date: Wed, 2 Jan 2013 15:59:28 +0200
+Subject: [PATCH 20/20] mfd: omap-usb-host: get rid of build warning
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Fixes the below build warning when driver is built-in.
+
+drivers/mfd/omap-usb-host.c:750:12: warning:
+‘usbhs_omap_remove’ defined but not used [-Wunused-function]
+
+Signed-off-by: Roger Quadros <rogerq@ti.com>
+Reviewed-by: Felipe Balbi <balbi@ti.com>
+---
+ drivers/mfd/omap-usb-host.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/mfd/omap-usb-host.c b/drivers/mfd/omap-usb-host.c
+index b21ca76..6b5edf6 100644
+--- a/drivers/mfd/omap-usb-host.c
++++ b/drivers/mfd/omap-usb-host.c
+@@ -791,7 +791,7 @@ static struct platform_driver usbhs_omap_driver = {
+ 		.owner		= THIS_MODULE,
+ 		.pm		= &usbhsomap_dev_pm_ops,
+ 	},
+-	.remove		= __exit_p(usbhs_omap_remove),
++	.remove		= usbhs_omap_remove,
+ };
+ 
+ MODULE_AUTHOR("Keshava Munegowda <keshava_mgowda@ti.com>");
+-- 
+1.7.4.4
+
