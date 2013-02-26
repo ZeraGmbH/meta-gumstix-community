@@ -3,7 +3,7 @@ require linux-common.inc
 
 COMPATIBLE_MACHINE = "(overo)"
 
-PR = "r123"
+PR = "r124"
 PV = "${KERNEL_PV_OMAP_35}"
 
 FILESPATH =. "${FILE_DIRNAME}/linux-omap-3.5:${FILE_DIRNAME}/linux-omap-3.5/${MACHINE}:"
