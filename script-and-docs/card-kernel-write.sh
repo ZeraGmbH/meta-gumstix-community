@@ -117,9 +117,8 @@ run_root() {
 	# modules
 	echo "Writing modules to rootfs"
 	cd ..
-        KernelShortFileName=${KernelFileName%*-*-*}
-	KernelVersion=${KernelShortFileName#*\-}
-	ModulesName="${KernelDirName}/modules-${KernelVersion}-${DEFAULT_MACHINE}.tgz"
+	ModulesFileName=`echo $KernelFileName | sed -e s/uImage/modules/ -e s/\.bin/\.tgz/`
+	ModulesName="${KernelDirName}/${ModulesFileName}"
 	tar xvzf $ModulesName lib/modules
 
 	cd ..
