@@ -1,7 +1,7 @@
-From da3d4ccd6bdcbfc8f0a3310dce9223a09a5fe019 Mon Sep 17 00:00:00 2001
+From eec95b53f2f3fb2b3edaafeb79d869397b634429 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
-Date: Thu, 21 Feb 2013 13:22:29 +0100
-Subject: [PATCH 1/2] overo: Add opp init
+Date: Wed, 27 Feb 2013 11:16:20 +0100
+Subject: [PATCH 2/2] overo: Add opp init
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -10,39 +10,47 @@ based on beagleboard init code
 
 Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
 ---
- arch/arm/mach-omap2/board-overo.c |   49 +++++++++++++++++++++++++++++++++++++
- 1 files changed, 49 insertions(+), 0 deletions(-)
+ arch/arm/mach-omap2/board-overo.c |   52 +++++++++++++++++++++++++++++++++++++
+ 1 files changed, 52 insertions(+), 0 deletions(-)
 
 diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo.c
-index 6e5ffe0..aa4cb72 100644
+index eef8cc5..850268c 100644
 --- a/arch/arm/mach-omap2/board-overo.c
 +++ b/arch/arm/mach-omap2/board-overo.c
-@@ -26,6 +26,7 @@
- #include <linux/io.h>
- #include <linux/gpio.h>
- #include <linux/kernel.h>
+@@ -34,6 +34,7 @@
+ #include <linux/spi/ads7846.h>
+ #include <linux/cpu.h>
+ #include <linux/usb/musb.h>
 +#include <linux/opp.h>
- #include <linux/platform_device.h>
- #include <linux/i2c/twl.h>
- #include <linux/regulator/machine.h>
-@@ -50,7 +51,10 @@
+ 
+ #include <linux/mtd/mtd.h>
+ #include <linux/mtd/nand.h>
+@@ -52,6 +53,7 @@
+ #include <video/omap-panel-generic-dpi.h>
  #include <video/omap-panel-tfp410.h>
  
- #include "common.h"
-+#include "omap_device.h"
 +#include "soc.h"
+ #include "common.h"
  #include "mux.h"
-+#include "pm.h"
  #include "sdram-micron-mt46h32m32lf-6.h"
- #include "gpmc.h"
+@@ -59,6 +61,8 @@
  #include "hsmmc.h"
-@@ -485,6 +489,51 @@ static struct regulator_consumer_supply dummy_supplies[] = {
- 	REGULATOR_SUPPLY("vdd33a", "smsc911x.1"),
+ #include "board-flash.h"
+ #include "common-board-devices.h"
++#include "pm.h"
++#include "omap_device.h"
+ 
+ #define	NAND_CS			0
+ 
+@@ -611,6 +615,54 @@ static struct omap_musb_board_data musb_board_data = {
+        .power                  = 500,
  };
  
++#if defined(CONFIG_PM_OPP) || \
++	defined(CONFIG_PM_OPP_MODULE)
 +static int __init overo_opp_init(void)
 +{
-+	int r = 0;
++	int r;
 +
 +	/* Initialize the omap3 opp table if not already created. */
 +	r = omap3_opp_init();
@@ -63,11 +71,11 @@ index 6e5ffe0..aa4cb72 100644
 +				__func__, mpu_dev, iva_dev);
 +			return -ENODEV;
 +		}
-+		/* Enable MPU 1GHz and lower opps */
++		/* Enable MPU 800MHz */
 +		r = opp_enable(mpu_dev, 800000000);
 +		/* TODO: MPU 1GHz needs SR and ABB */
 +
-+		/* Enable IVA 800MHz and lower opps */
++		/* Enable IVA 660MHz */
 +		r |= opp_enable(iva_dev, 660000000);
 +		/* TODO: DSP 800MHz needs SR and ABB */
 +		if (r) {
@@ -84,6 +92,7 @@ index 6e5ffe0..aa4cb72 100644
 +	return 0;
 +}
 +device_initcall(overo_opp_init);
++#endif
 +
  static void __init overo_init(void)
  {

@@ -15,9 +15,6 @@ SRC_URI = " \
     \
     file://ti_dspbridge/0001-staging_tidspbridge_fix_breakages_due_to_CM_reorganization.patch \
     \
-    file://opp/0001-overo-Add-opp-init.patch \
-    file://opp/0002-Add-basic-support-for-720MHz-part.patch \
-    \
     file://ADS7846/0001-drivers-input-touchscreen-ads7846-return-ENODEV-if-d.patch \
     file://ADS7846/0002-board-overo.c-debounce-ADS7846.patch \
     \
@@ -44,6 +41,10 @@ SRC_URI = " \
     file://USB/0020-mfd-omap-usb-host-get-rid-of-build-warning.patch \
     \
     file://smsc/0001-drivers-net-smsc911x-return-ENODEV-if-device-is-not-.patch \
+    \
+    file://opp/0001-omap3-Add-basic-support-for-720MHz-part.patch \
+    file://opp/0002-overo-Add-opp-init.patch \
+    \
 "
 
 
