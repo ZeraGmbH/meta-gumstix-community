@@ -1,0 +1,37 @@
+From 4530ef852ceb933e3b4ddb4f80f63c28a2f588d5 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Thu, 28 Feb 2013 16:59:06 +0100
+Subject: [PATCH] ehci-omap.c: Don't soft reset PHY
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+* dirty hack for now (in 3.9 EHCI is reworked)
+* saves 1s boot time:
+[    1.542572] ehci-omap ehci-omap.0: new USB bus registered, assigned bus number 1
+[    2.552429] ehci-omap ehci-omap.0: phy reset operation timed out
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ drivers/usb/host/ehci-omap.c |    5 +++--
+ 1 files changed, 3 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/usb/host/ehci-omap.c b/drivers/usb/host/ehci-omap.c
+index d0815b6..e6bc8af 100644
+--- a/drivers/usb/host/ehci-omap.c
++++ b/drivers/usb/host/ehci-omap.c
+@@ -222,8 +222,9 @@ static int ehci_hcd_omap_probe(struct platform_device *pdev)
+ 	/* Soft reset the PHY using PHY reset command over ULPI */
+ 	if (pdata->port_mode[0] == OMAP_EHCI_PORT_MODE_PHY)
+ 		omap_ehci_soft_phy_reset(pdev, 0);
+-	if (pdata->port_mode[1] == OMAP_EHCI_PORT_MODE_PHY)
+-		omap_ehci_soft_phy_reset(pdev, 1);
++	/* causes 'phy reset operation timed out' and a delay of 1s */
++	/*if (pdata->port_mode[1] == OMAP_EHCI_PORT_MODE_PHY)
++		omap_ehci_soft_phy_reset(pdev, 1);*/
+ 
+ 	omap_ehci = hcd_to_ehci(hcd);
+ 	omap_ehci->sbrn = 0x20;
+-- 
+1.7.6.5
+

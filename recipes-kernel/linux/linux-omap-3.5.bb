@@ -3,7 +3,7 @@ require linux-common.inc
 
 COMPATIBLE_MACHINE = "(overo)"
 
-PR = "r124"
+PR = "r125"
 PV = "${KERNEL_PV_OMAP_35}"
 
 FILESPATH =. "${FILE_DIRNAME}/linux-omap-3.5:${FILE_DIRNAME}/linux-omap-3.5/${MACHINE}:"
@@ -17,6 +17,7 @@ SRC_URI = " \
     \
     file://USB/0001-Revert-Fix-OMAP-EHCI-suspend-resume-failure-i693.patch \
     file://USB/0002-board-overo.c-call-usb_musb_init-with-host-mode-as-d.patch \
+    file://USB/0001-ehci-omap.c-Don-t-soft-reset-PHY.patch \
     \
     file://TWL4030/0001-Add-power-off-support-for-the-TWL4030-companion.patch \
     \
