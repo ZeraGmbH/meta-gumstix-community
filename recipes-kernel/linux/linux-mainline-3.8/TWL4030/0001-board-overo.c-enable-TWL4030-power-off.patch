@@ -1,0 +1,35 @@
+From 000341384feb48c1a748bd47b40bf6f3400cb0d3 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Thu, 28 Feb 2013 12:54:01 +0100
+Subject: [PATCH] board-overo.c: enable TWL4030 power off
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ arch/arm/mach-omap2/board-overo.c |    5 +++++
+ 1 files changed, 5 insertions(+), 0 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo.c
+index 850268c..df4ac06 100644
+--- a/arch/arm/mach-omap2/board-overo.c
++++ b/arch/arm/mach-omap2/board-overo.c
+@@ -541,9 +541,14 @@ static struct regulator_init_data overo_vmmc1 = {
+ 	.consumer_supplies	= overo_vmmc1_supply,
+ };
+ 
++static struct twl4030_power_data overo_power_data = {
++	.use_poweroff	= true,
++};
++
+ static struct twl4030_platform_data overo_twldata = {
+ 	.gpio		= &overo_gpio_data,
+ 	.vmmc1		= &overo_vmmc1,
++	.power		= &overo_power_data,
+ };
+ 
+ static int __init overo_i2c_init(void)
+-- 
+1.7.6.5
+

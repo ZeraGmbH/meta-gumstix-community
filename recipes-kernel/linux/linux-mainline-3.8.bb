@@ -45,6 +45,7 @@ SRC_URI = " \
     file://opp/0001-omap3-Add-basic-support-for-720MHz-part.patch \
     file://opp/0002-overo-Add-opp-init.patch \
     \
+    file://TWL4030/0001-board-overo.c-enable-TWL4030-power-off.patch \
 "
 
 
