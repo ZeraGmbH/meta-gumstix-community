@@ -19,6 +19,7 @@ SRC_URI = " \
     file://ADS7846/0002-board-overo.c-debounce-ADS7846.patch \
     \
     file://USB/0001-board-overo.c-call-usb_musb_init-with-host-mode-as-d.patch \
+    \
     file://USB/0001-USB-ehci-omap-Don-t-free-gpios-that-we-didn-t-reques.patch \
     file://USB/0002-mfd-omap-usb-host-Consolidate-OMAP-USB-HS-platform-d.patch \
     file://USB/0003-mfd-omap-usb-tll-Fix-channel-count-detection.patch \
@@ -39,6 +40,8 @@ SRC_URI = " \
     file://USB/0018-mfd-omap-usb-host-clean-up-omap_usbhs_init.patch \
     file://USB/0019-mfd-omap-usb-host-Don-t-spam-console-on-clk_set_pare.patch \
     file://USB/0020-mfd-omap-usb-host-get-rid-of-build-warning.patch \
+    \
+    file://USB/0001-ehci-omap.c-Don-t-soft-reset-PHY.patch \
     \
     file://smsc/0001-drivers-net-smsc911x-return-ENODEV-if-device-is-not-.patch \
     \
