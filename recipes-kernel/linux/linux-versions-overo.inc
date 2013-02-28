@@ -8,8 +8,8 @@ KERNEL_GIT_SRCREV_MAINLINE_36     = "3820288942d1c1524c3ee85cbf503fee1533cfc3"
 KERNEL_PV_MAINLINE_36             = "3.6.6"
 
 KERNEL_GIT_URI_MAINLINE_38        = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git;branch=linux-3.8.y;protocol=git"
-KERNEL_GIT_SRCREV_MAINLINE_38     = "19f949f52599ba7c3f67a5897ac6be14bfcb1200"
-KERNEL_PV_MAINLINE_38             = "3.8.0"
+KERNEL_GIT_SRCREV_MAINLINE_38     = "4c91a0e718837dddb8c06d5618c13d3b9fe68419"
+KERNEL_PV_MAINLINE_38             = "3.8.1"
 
 KERNEL_GIT_URI_SAKOMAN_32         = "git://www.sakoman.com/git/linux;branch=omap-3.2;protocol=git"
 KERNEL_GIT_SRCREV_SAKOMAN_32      = "513770d80c0cfb26cc406c9ca3916df2e7afe46d"

@@ -20,7 +20,6 @@ SRC_URI = " \
     \
     file://USB/0001-board-overo.c-call-usb_musb_init-with-host-mode-as-d.patch \
     \
-    file://USB/0001-USB-ehci-omap-Don-t-free-gpios-that-we-didn-t-reques.patch \
     file://USB/0002-mfd-omap-usb-host-Consolidate-OMAP-USB-HS-platform-d.patch \
     file://USB/0003-mfd-omap-usb-tll-Fix-channel-count-detection.patch \
     file://USB/0004-mfd-omap-usb-tll-Use-devm_kzalloc-ioremap-and-clean-.patch \
