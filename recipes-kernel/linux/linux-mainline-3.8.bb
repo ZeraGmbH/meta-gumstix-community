@@ -51,8 +51,4 @@ SRC_URI = " \
     file://TWL4030/0001-board-overo.c-enable-TWL4030-power-off.patch \
 "
 
-
-#    file://DSS/0001-OMAPDSS-fix-registering-the-vsync-isr-in-apply.patch
-
-
 PARALLEL_MAKEINST = ""
