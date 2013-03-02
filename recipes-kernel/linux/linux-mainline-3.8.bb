@@ -18,8 +18,6 @@ SRC_URI = " \
     file://ADS7846/0001-drivers-input-touchscreen-ads7846-return-ENODEV-if-d.patch \
     file://ADS7846/0002-board-overo.c-debounce-ADS7846.patch \
     \
-    file://USB/0001-board-overo.c-call-usb_musb_init-with-host-mode-as-d.patch \
-    \
     file://USB/0002-mfd-omap-usb-host-Consolidate-OMAP-USB-HS-platform-d.patch \
     file://USB/0003-mfd-omap-usb-tll-Fix-channel-count-detection.patch \
     file://USB/0004-mfd-omap-usb-tll-Use-devm_kzalloc-ioremap-and-clean-.patch \

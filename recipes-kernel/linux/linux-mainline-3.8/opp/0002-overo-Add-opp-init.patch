@@ -17,11 +17,12 @@ diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo
 index eef8cc5..850268c 100644
 --- a/arch/arm/mach-omap2/board-overo.c
 +++ b/arch/arm/mach-omap2/board-overo.c
-@@ -34,6 +34,7 @@
+@@ -34,6 +34,8 @@
+ #include <linux/regulator/fixed.h>
+ #include <linux/spi/spi.h>
  #include <linux/spi/ads7846.h>
- #include <linux/cpu.h>
- #include <linux/usb/musb.h>
 +#include <linux/opp.h>
++#include <linux/cpu.h>
  
  #include <linux/mtd/mtd.h>
  #include <linux/mtd/nand.h>
