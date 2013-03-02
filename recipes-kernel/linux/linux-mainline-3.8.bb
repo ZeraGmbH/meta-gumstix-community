@@ -46,6 +46,8 @@ SRC_URI = " \
     file://opp/0002-overo-Add-opp-init.patch \
     \
     file://TWL4030/0001-board-overo.c-enable-TWL4030-power-off.patch \
+    file://TWL4030/0002-omap2-twl-common-Add-default-power-configuration.patch \
+    file://TWL4030/0003-overo-use-TWL4030-generic-reset-madc-scripts.patch \
 "
 
 PARALLEL_MAKEINST = ""
