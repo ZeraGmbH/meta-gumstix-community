@@ -1,0 +1,30 @@
+From c364979612466ebae9c0b730b20bcf709cae6bbf Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Sat, 11 May 2013 19:53:17 +0200
+Subject: [PATCH] omapdss/osdl_input.c: avoid crash in case of no touchscreen
+ device
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ src/video/omapdss/osdl_input.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/src/video/omapdss/osdl_input.c b/src/video/omapdss/osdl_input.c
+index e6fb1f7..50e73aa 100644
+--- a/src/video/omapdss/osdl_input.c
++++ b/src/video/omapdss/osdl_input.c
+@@ -457,7 +457,7 @@ void omapsdl_input_init(void)
+ #if SDL_INPUT_TSLIB
+ 	/* start with touchscreen so that we can skip it later */
+ 	osdl_tslib_dev = ts_open(SDL_getenv("TSLIB_TSDEVICE"), 1);
+-	if (ts_config(osdl_tslib_dev) < 0) {
++	if (osdl_tslib_dev != NULL && ts_config(osdl_tslib_dev) < 0) {
+ 		ts_close(osdl_tslib_dev);
+ 		osdl_tslib_dev = NULL;
+ 	}
+-- 
+1.7.4.4
+
