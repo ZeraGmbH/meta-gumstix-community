@@ -4,7 +4,6 @@ require linux-common.inc
 COMPATIBLE_MACHINE = "(overo)"
 
 PV = "${KERNEL_PV_MAINLINE_38}"
-PR = "r1"
 
 FILESPATH =. "${FILE_DIRNAME}/linux-mainline-3.8:${FILE_DIRNAME}/linux-mainline-3.8/${MACHINE}:"
 
