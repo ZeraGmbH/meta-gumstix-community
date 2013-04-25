@@ -4,8 +4,8 @@ KERNEL_GIT_SRCREV_MAINLINE_32     = "563b3269570396946bc2b08e078c6556f9029a95"
 KERNEL_PV_MAINLINE_32             = "3.2.19"
 
 KERNEL_GIT_URI_MAINLINE_38        = "git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git;branch=linux-3.8.y;protocol=git"
-KERNEL_GIT_SRCREV_MAINLINE_38     = "aa4cfdeb17e3559fe1e80175c7338e065553dce5"
-KERNEL_PV_MAINLINE_38             = "3.8.5"
+KERNEL_GIT_SRCREV_MAINLINE_38     = "2396403a0402caf7b9decbc5d206fa63ba62b6b7"
+KERNEL_PV_MAINLINE_38             = "3.8.8"
 
 KERNEL_GIT_URI_OMAP_35            = "git://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap.git;branch=master;protocol=git"
 KERNEL_GIT_SRCREV_OMAP_35         = "28a33cbc24e4256c143dce96c7d93bf423229f92"
