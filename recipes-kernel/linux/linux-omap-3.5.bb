@@ -3,7 +3,7 @@ require linux-common.inc
 
 COMPATIBLE_MACHINE = "(overo)"
 
-PR = "r125"
+PR = "r126"
 PV = "${KERNEL_PV_OMAP_35}"
 
 FILESPATH =. "${FILE_DIRNAME}/linux-omap-3.5:${FILE_DIRNAME}/linux-omap-3.5/${MACHINE}:"
@@ -33,6 +33,8 @@ SRC_URI = " \
     file://smsc/0001-drivers-net-smsc911x-return-ENODEV-if-device-is-not-.patch \
     \
     file://mmc/0001-mmc-omap-add-sdio-interrupt-support.patch \
+    \
+    file://core/0001-perf-Treat-attr.config-as-u64-in-perf_swevent_init.patch \
 "
 
 PARALLEL_MAKEINST = ""
