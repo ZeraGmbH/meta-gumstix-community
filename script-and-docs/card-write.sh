@@ -107,13 +107,14 @@ run_root() {
 	umount ${DevicePath}1 || exit 1
 
 	# rootfs
-	mount ${DevicePath}2 /tmp/tmp_mount$$ || exit 1
-	rm -rf /tmp/tmp_mount$$/*
-	cd /tmp/tmp_mount$$
-	tar xvjf $RootFsFile
-	cd ..
-	umount ${DevicePath}2 || exit 1
-
+	time(
+		mount ${DevicePath}2 /tmp/tmp_mount$$ || exit 1
+		rm -rf /tmp/tmp_mount$$/*
+		cd /tmp/tmp_mount$$
+		tar xvjf $RootFsFile
+		cd ..
+		umount ${DevicePath}2 || exit 1
+	)
 	rm -rf /tmp/tmp_mount$$
 }
 
