@@ -15,6 +15,9 @@ SRC_URI = " \
     \
     file://board_init/0001-board-overo.c-double-NAND-partition-for-kernel-to-8M.patch \
     \
+    file://arm/0001-ARM-7668-1-fix-memset-related-crashes-caused-by-rece.patch \
+    file://arm/0002-ARM-7670-1-fix-the-memset-fix.patch \
+    \
     file://USB/0001-Revert-Fix-OMAP-EHCI-suspend-resume-failure-i693.patch \
     file://USB/0002-board-overo.c-call-usb_musb_init-with-host-mode-as-d.patch \
     file://USB/0001-ehci-omap.c-Don-t-soft-reset-PHY.patch \
