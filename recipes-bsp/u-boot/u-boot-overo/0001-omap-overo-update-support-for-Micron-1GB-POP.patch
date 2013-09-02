@@ -1,0 +1,43 @@
+From 49720a4b5a41aa20cd0f30e279bccf9d1fc648c0 Mon Sep 17 00:00:00 2001
+From: Steve Sakoman <steve@sakoman.com>
+Date: Wed, 24 Jul 2013 12:22:34 -0700
+Subject: [PATCH] omap: overo: update support for Micron 1GB POP
+
+Signed-off-by: Ash Charles <ashcharles@gmail.com>
+---
+ board/overo/overo.c |    6 ++++++
+ board/overo/overo.h |    1 +
+ 2 files changed, 7 insertions(+), 0 deletions(-)
+
+diff --git a/board/overo/overo.c b/board/overo/overo.c
+index a6e2e93..92d3de4 100644
+--- a/board/overo/overo.c
++++ b/board/overo/overo.c
+@@ -153,6 +153,12 @@ void get_board_mem_timings(struct board_sdrc_timings *timings)
+ 		timings->ctrlb = HYNIX_V_ACTIMB_165;
+ 		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+ 		break;
++	case REVISION_3: /* Micron 512MB/1024MB, 1/2 banks of 512MB */
++		timings->mcfg = MCFG(512 << 20, 15);
++		timings->ctrla = MICRON_V_ACTIMA_200;
++		timings->ctrlb = MICRON_V_ACTIMB_200;
++		timings->rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
++		break;
+ 	default:
+ 		timings->mcfg = MICRON_V_MCFG_165(128 << 20);
+ 		timings->ctrla = MICRON_V_ACTIMA_165;
+diff --git a/board/overo/overo.h b/board/overo/overo.h
+index 88e197d..64604de 100644
+--- a/board/overo/overo.h
++++ b/board/overo/overo.h
+@@ -21,6 +21,7 @@ const omap3_sysinfo sysinfo = {
+ #define REVISION_0	0x0
+ #define REVISION_1	0x1
+ #define REVISION_2	0x2
++#define REVISION_3	0x3
+ 
+ /*
+  * IEN  - Input Enable
+-- 
+1.7.6.5
+
