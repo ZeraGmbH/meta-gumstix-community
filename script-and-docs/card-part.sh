@@ -87,7 +87,7 @@ run_root() {
 	echo ,,,-
 	} | $DEBUG sfdisk -D -H 255 -S 63 -C $CYLINDERS $DevicePath
 	# write partitions
-	$DEBUG mkfs.vfat -F 32 -n "boot" ${DevicePath}1
+	$DEBUG mkfs.vfat -F 32 -n "boot" -s 2 ${DevicePath}1
 	$DEBUG mke2fs -j -t $RootfsType -L "rootfs" ${DevicePath}2
 }
 
