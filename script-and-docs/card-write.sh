@@ -101,9 +101,12 @@ run_root() {
 	# kernel & bootloader
 	mount ${DevicePath}1 /tmp/tmp_mount$$ || exit 1
 	rm -rf /tmp/tmp_mount$$/*
-	cp ${IMAGEDIR}/MLO-${MACHINE} /tmp/tmp_mount$$/MLO
+	if [ -e ${IMAGEDIR}/MLO-${MACHINE} ] ; then
+		cp ${IMAGEDIR}/MLO-${MACHINE} /tmp/tmp_mount$$/MLO
+	fi
 	cp ${IMAGEDIR}/u-boot-${MACHINE}.img /tmp/tmp_mount$$/u-boot.img
 	cp ${IMAGEDIR}/uImage-${MACHINE}.bin /tmp/tmp_mount$$/uImage
+	cp ${IMAGEDIR}/*.dtb /tmp/tmp_mount$$
 	umount ${DevicePath}1 || exit 1
 
 	# rootfs
