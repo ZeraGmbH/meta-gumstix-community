@@ -36,6 +36,7 @@ SRC_URI = " \
     file://smsc/0001-drivers-net-smsc911x-return-ENODEV-if-device-is-not-.patch \
     \
     file://mmc/0001-mmc-omap-add-sdio-interrupt-support.patch \
+    file://mmc/0002-mmc-omap_hsmmc-remove-warning-message-for-debounce-c.patch \
     \
     file://core/0001-perf-Treat-attr.config-as-u64-in-perf_swevent_init.patch \
 "

@@ -1,0 +1,32 @@
+From f50725129a2e1aae441d5af2919ed5219386eefc Mon Sep 17 00:00:00 2001
+From: Balaji T K <balajitk@ti.com>
+Date: Thu, 25 Oct 2012 21:28:35 +0530
+Subject: [PATCH] mmc: omap_hsmmc: remove warning message for debounce clock
+
+MMC debounce clock is applicable only for omap2430, warning message gets
+printed when enable fails for debounce clock. Remove the get debounce clock
+failure message as it is noisy for other platforms.
+
+Signed-off-by: Balaji T K <balajitk@ti.com>
+Reported-by: Russell King <rmk+kernel@arm.linux.org.uk>
+Acked-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Chris Ball <cjb@laptop.org>
+---
+ drivers/mmc/host/omap_hsmmc.c | 1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/drivers/mmc/host/omap_hsmmc.c b/drivers/mmc/host/omap_hsmmc.c
+index 0b5e7ab..5434fd8 100644
+--- a/drivers/mmc/host/omap_hsmmc.c
++++ b/drivers/mmc/host/omap_hsmmc.c
+@@ -1826,7 +1826,6 @@ static int __devinit omap_hsmmc_probe(struct platform_device *pdev)
+ 	 * MMC can still work without debounce clock.
+ 	 */
+ 	if (IS_ERR(host->dbclk)) {
+-		dev_warn(mmc_dev(host->mmc), "Failed to get debounce clk\n");
+ 		host->dbclk = NULL;
+ 	} else if (clk_prepare_enable(host->dbclk) != 0) {
+ 		dev_warn(mmc_dev(host->mmc), "Failed to enable debounce clk\n");
+-- 
+1.8.3.1
+
