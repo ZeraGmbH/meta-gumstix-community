@@ -23,6 +23,7 @@ SRC_URI = " \
     file://USB/0001-ehci-omap.c-Don-t-soft-reset-PHY.patch \
     \
     file://TWL4030/0001-Add-power-off-support-for-the-TWL4030-companion.patch \
+    file://TWL4030/0002-drivers-rtc-rtc-twl.c-ensure-all-interrupts-are-disabled.patch \
     \
     file://DSS/0001-OMAPDSS-OMAPFB-fix-framebuffer-console-colors.patch \
     \
@@ -40,5 +41,6 @@ SRC_URI = " \
     \
     file://core/0001-perf-Treat-attr.config-as-u64-in-perf_swevent_init.patch \
 "
+
 
 PARALLEL_MAKEINST = ""
