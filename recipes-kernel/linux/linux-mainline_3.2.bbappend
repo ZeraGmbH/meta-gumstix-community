@@ -1,11 +1,10 @@
-require linux-common.inc
-
 # meta-ti does not support overo
 COMPATIBLE_MACHINE_overo = "(overo)"
 
 PRINC := "${@int(PRINC) + 1}"
 
-PV_overo = "${KERNEL_PV_MAINLINE_32}"
+PV_overo = "3.2.19"
+SRCREV_overo = "563b3269570396946bc2b08e078c6556f9029a95"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/linux-mainline-3.2:${THISDIR}/splash:"
 
