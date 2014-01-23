@@ -1,0 +1,43 @@
+From dc7d1c101146572f7a21bc13462c13f4cb2d2f68 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Wed, 15 Jan 2014 13:32:25 +0100
+Subject: [PATCH] eglext.h: add EGL_WAYLAND_BUFFER_WL, EGL_WAYLAND_PLANE_WL
+ and EGL_BUFFER_AGE_EXT to prepare ti-omap3-sgx-wayland-wsegl
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ include/OGLES2/EGL/eglext.h | 5 ++
+ 1 file changed, 5 insertions(+)
+
+diff --git a/include/OGLES2/EGL/eglext.h b/include/OGLES2/EGL/eglext.h
+index c095c18..d58107a 100644
+--- a/include/OGLES2/EGL/eglext.h
++++ b/include/OGLES2/EGL/eglext.h
+@@ -168,6 +168,21 @@ typedef EGLBoolean (EGLAPIENTRYP PFNEGLGETSYNCATTRIBKHR) (EGLDisplay dpy, EGLSyn
+ #define EGL_CONTEXT_PRIORITY_LOW_IMG		0x3103
+ #endif
+ 
++EGLAPI EGLBoolean EGLAPIENTRY eglSwapBuffersWithDamageEXT( EGLDisplay dpy, EGLSurface surface, EGLint *rects, EGLint n_rects);
++
++#define EGL_WAYLAND_BUFFER_WL		0x31D5 /* eglCreateImageKHR target */
++#define EGL_WAYLAND_PLANE_WL		0x31D6 /* eglCreateImageKHR target */
++
++#define EGL_BUFFER_AGE_EXT		0x313D /* eglQuerySurface attribute */
++
++#define EGL_WAYLAND_BUFFER_COMPONENTS_WL	0x31D7  /* eglQueryWaylandBufferWL attribute */
++
++#define EGL_WAYLAND_BUFFER_RGB_WL	0x31D8
++#define EGL_WAYLAND_BUFFER_RGBA_WL	0x31D9
++#define EGL_WAYLAND_BUFFER_Y_U_V_WL	0x31Da
++#define EGL_WAYLAND_BUFFER_Y_UV_WL	0x31Db
++#define EGL_WAYLAND_BUFFER_Y_XUXV_WL	0x31Dc
++
+ #ifdef __cplusplus
+ }
+ #endif
+-- 
+1.8.3.1
+
