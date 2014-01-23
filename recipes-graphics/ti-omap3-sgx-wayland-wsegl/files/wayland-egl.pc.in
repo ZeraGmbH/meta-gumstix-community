@@ -1,0 +1,10 @@
+prefix=%PREFIX%
+libdir=%LIBDIR%
+includedir=%INCDIR%
+
+Name: wayland-egl
+Description: SGX wayland-egl library
+Version: %VERSION%
+Requires: wayland-server wayland-client
+Libs: -L${libdir} -lwayland-egl -lwayland-client -lwayland-server -lpvr2d
+Cflags: -I${includedir}
