@@ -1,0 +1,222 @@
+From 35596dcc581913845d2f356cf310b21076e73da7 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Fri, 7 Feb 2014 09:36:26 +0100
+Subject: [PATCH 6/9] remove flip buffer limits/pointers and share back buffer
+ limits/pointers
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+This simplification is intended to make implementation of EGL_BUFFER_AGE_EXT
+easier: The funtionality eglQuerySurface(..., EGL_BUFFER_AGE_EXT) must be
+implemented in egl.c since there is no callback for eglQuerySurface in
+waylandwsegl.c. To work properly we must ensure that the number of back buffers
+is fixed in either flipping/blitting case.
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ common/server_wlegl.cpp           |  3 +++
+ common/server_wlegl.h             |  2 ++
+ common/server_wlegl_buffer.h      |  1 -
+ libegl/egl.c                      |  3 +++
+ libwayland-egl/wayland-egl-priv.h | 12 +++++-------
+ wsegl/waylandwsegl.c              | 32 ++++++++++++++++----------------
+ wsegl/wsegl_buffer_sizes.h        |  6 ++++++
+ 7 files changed, 35 insertions(+), 24 deletions(-)
+ create mode 100644 wsegl/wsegl_buffer_sizes.h
+
+diff --git a/common/server_wlegl.cpp b/common/server_wlegl.cpp
+index fde3a86..9637f86 100644
+--- a/common/server_wlegl.cpp
++++ b/common/server_wlegl.cpp
+@@ -22,6 +22,9 @@
+ 
+ #include <string.h>
+ 
++/* back buffer sizes */
++#include "../wsegl/wsegl_buffer_sizes.h"
++
+ #include <EGL/egl.h>
+ #include <EGL/eglext.h>
+ 
+diff --git a/common/server_wlegl.h b/common/server_wlegl.h
+index 7f15bb0..eb55958 100644
+--- a/common/server_wlegl.h
++++ b/common/server_wlegl.h
+@@ -23,6 +23,8 @@
+ #ifndef SERVER_WLEGL_H
+ #define SERVER_WLEGL_H
+ 
++#include "../wsegl/wsegl_buffer_sizes.h"
++
+ #include <EGL/egl.h>
+ #include <EGL/eglext.h>
+ 
+diff --git a/common/server_wlegl_buffer.h b/common/server_wlegl_buffer.h
+index 23bcb47..de741b2 100644
+--- a/common/server_wlegl_buffer.h
++++ b/common/server_wlegl_buffer.h
+@@ -29,7 +29,6 @@
+ extern "C" {
+ #endif
+ 
+-
+ struct server_wlegl;
+ struct server_wlegl_buffer;
+ 
+diff --git a/libegl/egl.c b/libegl/egl.c
+index 3209f29..a41fe43 100644
+--- a/libegl/egl.c
++++ b/libegl/egl.c
+@@ -15,6 +15,9 @@
+  *
+  */
+ 
++/* back buffer sizes */
++#include "../wsegl/wsegl_buffer_sizes.h"
++
+ /* EGL function pointers */
+ #define EGL_EGLEXT_PROTOTYPES
+ #include <EGL/egl.h>
+diff --git a/libwayland-egl/wayland-egl-priv.h b/libwayland-egl/wayland-egl-priv.h
+index 387ca42..beeeef7 100644
+--- a/libwayland-egl/wayland-egl-priv.h
++++ b/libwayland-egl/wayland-egl-priv.h
+@@ -42,6 +42,8 @@ extern "C" {
+ #define WL_EGL_EXPORT
+ #endif
+ 
++#include "../wsegl/wsegl_buffer_sizes.h"
++
+ #include <stdbool.h>
+ #include <wayland-client.h>
+ #include <pvr2d.h>
+@@ -54,9 +56,6 @@ typedef struct wl_egl_window* NativeWindowType;
+ #include "wayland-sgx-server-protocol.h"
+ #include "wsegl.h"
+ 
+-#define WAYLANDWSEGL_MAX_BACK_BUFFERS     2
+-#define WAYLANDWSEGL_MAX_FLIP_BUFFERS 	  2
+-
+ enum WWSEGL_DRAWABLE_TYPE
+ {
+      WWSEGL_DRAWABLE_TYPE_UNKNOWN,
+@@ -107,13 +106,12 @@ struct wl_egl_window {
+ 
+ 	WSEGLPixelFormat   format;
+ 	PVR2DMEMINFO	   *frontBufferPVRMEM;
+-	PVR2DMEMINFO       *backBuffers[WAYLANDWSEGL_MAX_BACK_BUFFERS];
+-	struct wl_buffer   *drmbuffers[WAYLANDWSEGL_MAX_BACK_BUFFERS];
++	PVR2DMEMINFO       *backBuffers[WAYLANDWSEGL_BACK_BUFFER_COUNT];
++	struct wl_buffer   *drmbuffers[WAYLANDWSEGL_BACK_BUFFER_COUNT];
+ 	int                numFlipBuffers;
+ 	PVR2DFLIPCHAINHANDLE flipChain;
+-    PVR2DMEMINFO       *flipBuffers[WAYLANDWSEGL_MAX_FLIP_BUFFERS];
+ 
+-    PVR2D_HANDLE exporthandles[WAYLANDWSEGL_MAX_BACK_BUFFERS];
++	PVR2D_HANDLE exporthandles[WAYLANDWSEGL_BACK_BUFFER_COUNT];
+ 	
+ 	int                 currentBackBuffer;
+ 	int                 backBuffersValid;
+diff --git a/wsegl/waylandwsegl.c b/wsegl/waylandwsegl.c
+index 495315a..a83d6bc 100644
+--- a/wsegl/waylandwsegl.c
++++ b/wsegl/waylandwsegl.c
+@@ -62,6 +62,7 @@
+ #include "wayland-sgx-server-protocol.h"
+ #include "wayland-sgx-client-protocol.h"
+ #include "server_wlegl_buffer.h"
++#include "wsegl_buffer_sizes.h"
+ 
+ static WSEGLCaps const wseglDisplayCaps[] = {
+     {WSEGL_CAP_WINDOWS_USE_HW_SYNC, 1},
+@@ -380,14 +381,10 @@ static WSEGLError allocateBackBuffers(struct wl_egl_display *egldisplay, NativeW
+         PVR2DGetFlipChainBuffers(egldisplay->context,
+                                      nativeWindow->flipChain,
+                                      &numBuffers,
+-                                     nativeWindow->flipBuffers);
+-        for (index = 0; index < numBuffers; ++index)
+-        {
+-             nativeWindow->backBuffers[index] = nativeWindow->flipBuffers[index];
+-        }
++                                     nativeWindow->backBuffers);
+     }
+     else {
+-	    for (index = 0; index < WAYLANDWSEGL_MAX_BACK_BUFFERS; ++index)
++	    for (index = 0; index < WAYLANDWSEGL_BACK_BUFFER_COUNT; ++index)
+ 	    {
+ 		if (PVR2DMemAlloc(egldisplay->context,
+ 			      nativeWindow->strideBytes * nativeWindow->height,
+@@ -461,11 +458,14 @@ static WSEGLError wseglCreateWindowDrawable
+ 
+        if (displayInfo.ulMaxFlipChains > 0 && displayInfo.ulMaxBuffersInChain > 0)
+               nativeWindow->numFlipBuffers = displayInfo.ulMaxBuffersInChain;
+-       if (nativeWindow->numFlipBuffers > WAYLANDWSEGL_MAX_FLIP_BUFFERS)
+-              nativeWindow->numFlipBuffers = WAYLANDWSEGL_MAX_FLIP_BUFFERS;
+-
+-       /* Workaround for broken devices, seen in debugging */
+-       if (nativeWindow->numFlipBuffers < 2)
++       if (nativeWindow->numFlipBuffers > WAYLANDWSEGL_BACK_BUFFER_COUNT)
++              nativeWindow->numFlipBuffers = WAYLANDWSEGL_BACK_BUFFER_COUNT;
++
++       /* EGL_BUFFER_AGE_EXT is implemented in egl.c since we don't have a
++        * eglQuerySurface callback here. To make it work properly we must
++        * ensure that we support a certain number of back buffers
++        * (WAYLANDWSEGL_BACK_BUFFER_COUNT) for blitting/flipping case */
++       if (nativeWindow->numFlipBuffers < WAYLANDWSEGL_BACK_BUFFER_COUNT)
+               nativeWindow->numFlipBuffers = 0;
+     }
+     else
+@@ -501,7 +501,7 @@ static WSEGLError wseglCreateWindowDrawable
+        /* Wayland window */  
+        if (nativeWindow->display->display != NULL)
+        {
+-            for (index = 0; index < WAYLANDWSEGL_MAX_BACK_BUFFERS; index++)
++            for (index = 0; index < WAYLANDWSEGL_BACK_BUFFER_COUNT; index++)
+             {
+               PVR2D_HANDLE name;
+ 
+@@ -551,7 +551,7 @@ static WSEGLError wseglDeleteDrawable(WSEGLDrawableHandle _drawable)
+     struct wl_egl_window *drawable = (struct wl_egl_window *) _drawable;
+ 
+     int index;
+-    int numBuffers = WAYLANDWSEGL_MAX_BACK_BUFFERS;
++    int numBuffers = WAYLANDWSEGL_BACK_BUFFER_COUNT;
+ 
+     if (drawable->header.type == WWSEGL_DRAWABLE_TYPE_WINDOW) {
+         for (index = 0; index < numBuffers; ++index) {
+@@ -679,7 +679,7 @@ static WSEGLError wseglSwapDrawable
+     }
+     
+     drawable->currentBackBuffer   
+-      = (drawable->currentBackBuffer + 1) % WAYLANDWSEGL_MAX_BACK_BUFFERS;
++      = (drawable->currentBackBuffer + 1) % WAYLANDWSEGL_BACK_BUFFER_COUNT;
+ 
+     return WSEGL_SUCCESS;
+ }
+@@ -720,8 +720,8 @@ static int wseglGetBuffers(struct wl_egl_window *drawable, PVR2DMEMINFO **source
+       return 0;
+   *render = drawable->backBuffers[drawable->currentBackBuffer];
+   *source = drawable->backBuffers
+-  [(drawable->currentBackBuffer + WAYLANDWSEGL_MAX_BACK_BUFFERS - 1) %
+-                 WAYLANDWSEGL_MAX_BACK_BUFFERS];
++  [(drawable->currentBackBuffer + WAYLANDWSEGL_BACK_BUFFER_COUNT - 1) %
++                 WAYLANDWSEGL_BACK_BUFFER_COUNT];
+   return 1;
+ }                                                   
+ 
+diff --git a/wsegl/wsegl_buffer_sizes.h b/wsegl/wsegl_buffer_sizes.h
+new file mode 100644
+index 0000000..1890b5b
+--- /dev/null
++++ b/wsegl/wsegl_buffer_sizes.h
+@@ -0,0 +1,6 @@
++#ifndef __wsegl_buffer_sizes_h_
++#define __wsegl_buffer_sizes_h_
++
++#define WAYLANDWSEGL_BACK_BUFFER_COUNT     2
++
++#endif /* __wsegl_buffer_sizes_h_ */
+-- 
+1.8.3.1
+

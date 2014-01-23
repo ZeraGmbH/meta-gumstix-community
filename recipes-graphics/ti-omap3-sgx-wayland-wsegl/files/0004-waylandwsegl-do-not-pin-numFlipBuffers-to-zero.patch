@@ -1,0 +1,29 @@
+From fe4b67fcdcf7a9cfca4dde9ee879719470d05787 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Tue, 4 Feb 2014 09:45:28 +0100
+Subject: [PATCH 4/9] waylandwsegl: do not pin numFlipBuffers to zero
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ wsegl/waylandwsegl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/wsegl/waylandwsegl.c b/wsegl/waylandwsegl.c
+index a90d570..156f30f 100644
+--- a/wsegl/waylandwsegl.c
++++ b/wsegl/waylandwsegl.c
+@@ -461,7 +461,7 @@ static WSEGLError wseglCreateWindowDrawable
+               nativeWindow->numFlipBuffers = WAYLANDWSEGL_MAX_FLIP_BUFFERS;
+ 
+        /* Workaround for broken devices, seen in debugging */
+-//       if (nativeWindow->numFlipBuffers < 2)
++       if (nativeWindow->numFlipBuffers < 2)
+               nativeWindow->numFlipBuffers = 0;
+     }
+     else
+-- 
+1.8.3.1
+

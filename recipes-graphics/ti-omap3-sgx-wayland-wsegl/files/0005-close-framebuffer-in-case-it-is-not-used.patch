@@ -1,0 +1,48 @@
+From 88d5b3e55cf9b8c3415641aa25c21a843438bf94 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Thu, 6 Feb 2014 09:50:46 +0100
+Subject: [PATCH 5/9] close framebuffer in case it is not used
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ wsegl/waylandwsegl.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/wsegl/waylandwsegl.c b/wsegl/waylandwsegl.c
+index 156f30f..495315a 100644
+--- a/wsegl/waylandwsegl.c
++++ b/wsegl/waylandwsegl.c
+@@ -121,7 +121,11 @@ WL_EGL_EXPORT void
+ wl_egl_display_destroy(struct wl_egl_display *egl_display)
+ {
+ 	free(egl_display->device_name);
+-	close(egl_display->fd);
++	if (egl_display->fd >= 1)
++	{
++		close(egl_display->fd);
++		egl_display->fd = -1;
++	}
+ 
+ 	free(egl_display);
+ }
+@@ -476,6 +480,14 @@ static WSEGLError wseglCreateWindowDrawable
+         nativeWindow->width = nativeWindow->height = 8;
+     }
+ 
++    /* close framebuffer in case we don't need it anymore */
++    if (egldisplay->fd >= 0 &&
++        (nativeWindow->numFlipBuffers || nativeWindow->display->display) )
++    {
++        wsegl_debug("closing unused framebuffer");
++        close (egldisplay->fd);
++        egldisplay->fd = -1;
++    }
+ 
+     /* If we don't have back buffers allocated already */
+     if (!(nativeWindow->backBuffers[0] && nativeWindow->backBuffersValid))
+-- 
+1.8.3.1
+

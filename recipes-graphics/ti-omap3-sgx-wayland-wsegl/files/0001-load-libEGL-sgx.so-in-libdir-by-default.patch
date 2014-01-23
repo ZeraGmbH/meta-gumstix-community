@@ -1,0 +1,31 @@
+From ca33fbed159849842cc7fd9c0ed1f824015bf53a Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Mon, 20 Jan 2014 09:13:12 +0100
+Subject: [PATCH] load libEGL-sgx.so in libdir by default
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Upstream-Status: Inappropriate [configuration]
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ libegl/egl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/libegl/egl.c b/libegl/egl.c
+index 3209f29..b85cc6f 100644
+--- a/libegl/egl.c
++++ b/libegl/egl.c
+@@ -118,7 +118,7 @@ static __eglMustCastToProperFunctionPointerType (*_eglGetProcAddress)(const char
+ 
+ static void _init_egl()
+ {
+-	_libegl = (void *) dlopen(getenv("LIBEGL") ? getenv("LIBEGL") : "/usr/lib/sgx/libEGL-sgx.so", RTLD_LAZY);
++	_libegl = (void *) dlopen(getenv("LIBEGL") ? getenv("LIBEGL") : "/usr/lib/libEGL-sgx.so", RTLD_LAZY);
+ }
+ 
+ #define EGL_DLSYM(fptr, sym) do { if (_libegl == NULL) { _init_egl(); }; if (*(fptr) == NULL) { *(fptr) = (void *) dlsym(_libegl, sym); } } while (0) 
+-- 
+1.8.3.1
+
