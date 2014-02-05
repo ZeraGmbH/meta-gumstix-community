@@ -9,6 +9,7 @@
 # the OE environment variable OE_BUILD_TMPDIR must be set.
 
 DEFAULT_MACHINE=overo
+DEFAULT_KERNEL_IMAGE_TYPE=uImage
 
 SelectKernel() {
 	# OE environment found?
@@ -26,7 +27,7 @@ SelectKernel() {
 		fi
 	done
 	for BuildPath in ${TMPDIR}-*; do
-		for i in `find ${BuildPath}/deploy/images/${MACHINE} -name 'uImage-*-*-*.bin' | sort` ; do
+		for i in `find ${BuildPath}/deploy/images/${MACHINE} -name ${KERNEL_IMAGE_TYPE}'-*-*-*.bin' | sort` ; do
 			iCount=`expr $iCount + 1`
 			KernelNameArr[${iCount}]=$i
 			strSelection="$strSelection $iCount "`basename $i`
@@ -68,7 +69,7 @@ run_user() {
 		# select rootfs
 		SelectKernel || exit 1
 	fi
-	RootParams="$DevicePath $KernelImage"
+	RootParams="$DevicePath $KernelImage $KERNEL_IMAGE_TYPE"
 }
 
 run_root() {
@@ -100,7 +101,7 @@ run_root() {
 	# boot partition
 	echo "Writing kernel to boot partition"
 	mount ${DevicePath}1 /tmp/tmp_mount$$ || exit 1
-	cp $KernelImage /tmp/tmp_mount$$/uImage
+	cp $KernelImage /tmp/tmp_mount$$/$KernelImageType
 	sleep 1
 	umount ${DevicePath}1 || exit 1
 
@@ -108,17 +109,17 @@ run_root() {
 	echo "Writing kernel to rootfs"
 	mount ${DevicePath}2 /tmp/tmp_mount$$ || exit 1
 	cd /tmp/tmp_mount$$/boot
-	rm -f uImage*
+	rm -f [zu]Image*
 	# kernel
 	KernelFileName=`basename $KernelImage`
 	KernelDirName=`dirname  $KernelImage`
         KernelShortFileName=${KernelFileName%*-*-*-*}
 	cp $KernelImage $KernelShortFileName
-	ln -sf $KernelShortFileName uImage
+	ln -sf $KernelShortFileName $KernelImageType
 	# modules
 	echo "Writing modules to rootfs"
 	cd ..
-	ModulesFileName=`echo $KernelFileName | sed -e s/uImage/modules/ -e s/\.bin/\.tgz/`
+	ModulesFileName=`echo $KernelFileName | sed -e s/${KernelImageType}/modules/ -e s/\.bin/\.tgz/`
 	ModulesName="${KernelDirName}/${ModulesFileName}"
 	tar xvzf $ModulesName lib/modules
 
@@ -133,11 +134,15 @@ run_root() {
 if [ -z $MACHINE ]; then
 	MACHINE=$DEFAULT_MACHINE
 fi
+if [ -z $KERNEL_IMAGE_TYPE ]; then
+	KERNEL_IMAGE_TYPE=$DEFAULT_KERNEL_IMAGE_TYPE
+fi
 
 DevicePath=$1
 KernelImage=$2
+KernelImageType=$3
 
 # On the 1st call: run user
 # After the 2nd call: run root
-RootParams='$DevicePath $KernelImage'
+RootParams='$DevicePath $KernelImage $KERNEL_IMAGE_TYPE'
 chk_root "The kernel images on %DevicePath% will be overwritten!!" && run_root

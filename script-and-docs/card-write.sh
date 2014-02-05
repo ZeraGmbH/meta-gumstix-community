@@ -9,6 +9,7 @@
 # the OE environment variable OE_BUILD_TMPDIR must be set.
 
 DEFAULT_MACHINE=overo
+DEFAULT_KERNEL_IMAGE_TYPE=uImage
 
 SelectRootfs() {
 	# OE environment found?
@@ -69,7 +70,7 @@ run_user() {
 		# select rootfs
 		SelectRootfs || exit 1
 	fi
-	RootParams="$DevicePath $RootFsFile"
+	RootParams="$DevicePath $RootFsFile $KERNEL_IMAGE_TYPE"
 }
 
 run_root() {
@@ -106,7 +107,7 @@ run_root() {
 		cp ${IMAGEDIR}/MLO-${MACHINE} /tmp/tmp_mount$$/MLO
 	fi
 	cp ${IMAGEDIR}/u-boot-${MACHINE}.img /tmp/tmp_mount$$/u-boot.img
-	cp ${IMAGEDIR}/uImage-${MACHINE}.bin /tmp/tmp_mount$$/uImage
+	cp ${IMAGEDIR}/${KernelImageType}-${MACHINE}.bin /tmp/tmp_mount$$/${KernelImageType}
 	cp ${IMAGEDIR}/*.dtb /tmp/tmp_mount$$
 	sleep 1
 	umount ${DevicePath}1 || exit 1
@@ -129,12 +130,17 @@ if [ -z $MACHINE ]; then
 	MACHINE=$DEFAULT_MACHINE
 fi
 
+if [ -z $KERNEL_IMAGE_TYPE ]; then
+	KERNEL_IMAGE_TYPE=$DEFAULT_KERNEL_IMAGE_TYPE
+fi
+
 DevicePath=$1
 RootFsFile=$2
+KernelImageType=$3
 
 # On the 1st call: run user
 # After the 2nd call: run root
-RootParams='$DevicePath $RootFsFile'
+RootParams='$DevicePath $RootFsFile $KERNEL_IMAGE_TYPE'
 chk_root&&run_root
 
 
