@@ -35,15 +35,8 @@ PROVIDES += "virtual/egl"
 # weston requires egl >= 7.10 currently
 VERSION = "9.0.0"
 
-do_configure_prepend() {
-	# shame on me for this ugly HACK but qtbase was only built native so far so we have no
-	# mkspecs. So get them from qtbase-native...
-	if [ ! -e  ${WORKDIR}/mkspecs ] ; then
-		mkdir ${WORKDIR}/mkspecs
-		cp -rf ${QMAKE_MKSPEC_PATH_NATIVE}/mkspecs/* ${WORKDIR}/mkspecs
-		sed -i 's,^TartgetSpec.*,TartgetSpec = ${WORKDIR}/mkspecs/linux-oe-g++,' ${WORKDIR}/qt.conf
-	fi
-}
+# pin spec path to native - qtbase for target does not yet exist
+OE_QMAKE_DEBUG_OUTPUT = "-spec ${QMAKE_MKSPEC_PATH_NATIVE}/mkspecs/linux-oe-g++"
 
 do_install_append() {
 	# install pkconfigs
