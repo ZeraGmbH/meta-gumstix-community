@@ -11,7 +11,7 @@ BINLOCATION_ti43x = "${S}/gfx_rel_es9.x"
 PLATFORM = "LinuxARMV7"
 PVR_INIT = "pvrsrvctl"
 
-SGXPV = "5_01_00_01"
+SGXPV = "5_01_01_01"
 IMGPV = "1.10.2359475"
 BINFILE = "Graphics_SDK_setuplinux_hardfp_${SGXPV}.bin"
 
@@ -39,8 +39,8 @@ SRC_URI = "http://software-dl.ti.com/dsps/dsps_public_sw/gfxsdk/${SGXPV}/exports
 
 PKGCONFIGS-SHIPPED = "glesv2"
 
-SRC_URI[md5sum] := "0ee7d59808330d442a51c0990c2cb30e"
-SRC_URI[sha256sum] := "769daae439677a7a85bbbced14cee4f85b19823e0b99560078d0a864c525c128"
+SRC_URI[md5sum] := "94acdbd20152c905939c2448d5e80a72"
+SRC_URI[sha256sum] := "7f647bf45a5ce8ba9aaa28c4afe85fced4275f9a4567a1886d4460b76c9051ae"
 
 S = "${WORKDIR}/Graphics_SDK_${SGXPV}"
 
