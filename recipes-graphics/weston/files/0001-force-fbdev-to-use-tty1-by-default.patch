@@ -24,7 +24,7 @@ index 53bc0dd..ce5b899 100644
 -		.tty = 0, /* default to current tty */
 +		.tty = 1, /* default to current tty */
  		.device = "/dev/fb0", /* default frame buffer */
- 		.use_gl = 1,
+ 		.use_gl = 0,
  	};
 -- 
 1.8.3.1
