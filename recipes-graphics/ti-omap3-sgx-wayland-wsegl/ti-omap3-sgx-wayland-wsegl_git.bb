@@ -23,7 +23,10 @@ S = "${WORKDIR}/git"
 
 inherit qmake5
 
-DEPENDS += "libgles-omap3-wayland wayland"
+DEPENDS = "libgles-omap3-wayland wayland"
+# mesa builds wayland-egl and gbm - to make recipes happy requiring both we depend on gbm
+# as we do not provide both
+DEPENDS += "libgbm"
 
 DEFAULT_PREFERENCE_omap3 = "99"
 DEFAULT_PREFERENCE = "-1"
