@@ -14,6 +14,8 @@ U-Boot environment variables used often (for further see linux Documentation/ker
 
 
 * videosettings:
+  * latest u-boot
+  setenv bootcmd 'mmc dev ${mmcdev}; if mmc rescan; then if run loadbootscript; then run bootscript; else if run loaduimage; then run mmcboot; else run nandboot; fi; fi; else run nandboot; fi'
   * dvi:
   setenv defaultdisplay dvi
   setenv nandargs 'setenv bootargs console=${console} ${optargs} mpurate=${mpurate} vram=${vram} omapfb.mode=dvi:${dvimode} omapdss.def_disp=${defaultdisplay} root=${nandroot} rootfstype=${nandrootfstype}'
