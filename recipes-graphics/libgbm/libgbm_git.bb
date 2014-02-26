@@ -13,3 +13,4 @@ S = "${WORKDIR}/git"
 inherit autotools
 
 DEPENDS = "libdrm udev"
+RRECOMMENDS_${PN} = "libdrm-omap"
