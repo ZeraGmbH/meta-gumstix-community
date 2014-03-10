@@ -17,6 +17,7 @@ SRC_URI = " \
 	file://0005-include-configs-omap3_overo.h-align-kernel-NAND-part.patch \
 	file://0006-set-ext4-as-default-in-bootparams.patch \
 	file://0007-omap3_overo.h-Add-consoleblank-0-to-default-paramete.patch \
+	file://0008-add-bootz-command.patch \
 "
 
 SRCREV = "62c175fbb8a0f9a926c88294ea9f7e88eb898f6c"

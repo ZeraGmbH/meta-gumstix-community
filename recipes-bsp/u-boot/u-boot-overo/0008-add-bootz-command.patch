@@ -1,0 +1,29 @@
+From 5b9c4e3dbb01ce2016291980a6eefb874b251d07 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Fri, 7 Mar 2014 09:33:50 +0100
+Subject: [PATCH] add bootz command
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ include/configs/omap3_overo.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/include/configs/omap3_overo.h b/include/configs/omap3_overo.h
+index 8b73d5e..e345e00 100644
+--- a/include/configs/omap3_overo.h
++++ b/include/configs/omap3_overo.h
+@@ -38,6 +38,8 @@
+ #define CONFIG_DISPLAY_CPUINFO
+ #define CONFIG_DISPLAY_BOARDINFO
+ 
++#define CONFIG_CMD_BOOTZ
++
+ /* Clock Defines */
+ #define V_OSCK			26000000	/* Clock output from T2 */
+ #define V_SCLK			(V_OSCK >> 1)
+-- 
+1.8.3.1
+
