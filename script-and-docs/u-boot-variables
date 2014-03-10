@@ -31,3 +31,7 @@ U-Boot environment variables used often (for further see linux Documentation/ker
 
 * forward all systemd output to console
   setenv console ttyO2,115200n8 systemd.journald.forward_to_console=1
+
+* zImage
+  setenv loaduimage fatload mmc ${mmcdev} ${loadaddr} zImage
+  setenv mmcboot 'echo Booting from mmc ...; run mmcargs; bootz ${loadaddr}'
