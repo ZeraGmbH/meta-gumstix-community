@@ -35,3 +35,6 @@ U-Boot environment variables used often (for further see linux Documentation/ker
 * zImage
   setenv loaduimage fatload mmc ${mmcdev} ${loadaddr} zImage
   setenv mmcboot 'echo Booting from mmc ...; run mmcargs; bootz ${loadaddr}'
+
+* drm
+  setenv mmcargs 'setenv bootargs console=${console} ${optargs} mpurate=${mpurate} vram=${vram} video=DVI-D-1:${dvimode} drm.debug=7 omapdss.debug=7 omapdss.def_disp=${defaultdisplay} root=${mmcroot} rootfstype=${mmcrootfstype}'
