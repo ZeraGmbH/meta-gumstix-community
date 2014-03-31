@@ -1,7 +1,7 @@
 From 7afafbc1a765a53bc334471235efb30b110c2b82 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
 Date: Mon, 20 Jan 2014 13:04:32 +0100
-Subject: [PATCH 2/9] updates for 1.10 Linux DDK
+Subject: [PATCH 2/5] updates for 1.10 Linux DDK
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit

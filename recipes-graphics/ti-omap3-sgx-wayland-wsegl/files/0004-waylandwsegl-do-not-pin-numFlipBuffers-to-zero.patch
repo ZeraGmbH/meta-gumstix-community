@@ -1,7 +1,7 @@
 From fe4b67fcdcf7a9cfca4dde9ee879719470d05787 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
 Date: Tue, 4 Feb 2014 09:45:28 +0100
-Subject: [PATCH 4/9] waylandwsegl: do not pin numFlipBuffers to zero
+Subject: [PATCH 4/5] waylandwsegl: do not pin numFlipBuffers to zero
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
