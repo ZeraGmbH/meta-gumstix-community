@@ -1,0 +1,28 @@
+From 7a0013588d37c725ea5031205c17af3c6badf444 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Wed, 26 Mar 2014 13:34:18 +0100
+Subject: [PATCH] board-overo.c: enable TWL4030 power off
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ arch/arm/mach-omap2/board-overo.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo.c
+index dd8a57b..3861c6b 100644
+--- a/arch/arm/mach-omap2/board-overo.c
++++ b/arch/arm/mach-omap2/board-overo.c
+@@ -524,6 +524,7 @@ static int __init overo_i2c_init(void)
+ 			TWL_COMMON_REGULATOR_VDAC | TWL_COMMON_REGULATOR_VPLL2);
+ 
+ 	overo_twldata.vpll2->constraints.name = "VDVI";
++	overo_twldata.power->use_poweroff = true;
+ 
+ 	omap3_pmic_init("tps65950", &overo_twldata);
+ 	/* i2c2 pins are used for gpio */
+-- 
+1.8.3.1
+

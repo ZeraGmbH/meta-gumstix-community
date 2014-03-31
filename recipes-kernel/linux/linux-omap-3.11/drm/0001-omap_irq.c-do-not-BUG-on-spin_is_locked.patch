@@ -1,0 +1,33 @@
+From 13d47cc931762b455389de308da8be00f4d1f30e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Wed, 26 Feb 2014 13:51:27 +0100
+Subject: [PATCH] omap_irq.c: do not BUG on spin_is_locked()
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+seems not the best idea [1]
+
+[1] https://lkml.org/lkml/2012/3/27/413
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ drivers/gpu/drm/omapdrm/omap_irq.c | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/omapdrm/omap_irq.c b/drivers/gpu/drm/omapdrm/omap_irq.c
+index 2629ba7..d036ae6 100644
+--- a/drivers/gpu/drm/omapdrm/omap_irq.c
++++ b/drivers/gpu/drm/omapdrm/omap_irq.c
+@@ -34,8 +34,6 @@ static void omap_irq_update(struct drm_device *dev)
+ 	struct omap_drm_irq *irq;
+ 	uint32_t irqmask = priv->vblank_mask;
+ 
+-	BUG_ON(!spin_is_locked(&list_lock));
+-
+ 	list_for_each_entry(irq, &priv->irq_list, node)
+ 		irqmask |= irq->irqmask;
+ 
+-- 
+1.8.3.1
+
