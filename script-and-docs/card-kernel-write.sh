@@ -101,6 +101,7 @@ run_root() {
 	echo "Writing kernel to boot partition"
 	mount ${DevicePath}1 /tmp/tmp_mount$$ || exit 1
 	cp $KernelImage /tmp/tmp_mount$$/uImage
+	sleep 1
 	umount ${DevicePath}1 || exit 1
 
 	# rootfs
