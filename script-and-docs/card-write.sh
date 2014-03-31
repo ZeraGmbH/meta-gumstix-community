@@ -99,6 +99,7 @@ run_root() {
 	fi
 
 	# kernel & bootloader
+	echo "Writing kernel and bootloader to boot partition"
 	mount ${DevicePath}1 /tmp/tmp_mount$$ || exit 1
 	rm -rf /tmp/tmp_mount$$/*
 	if [ -e ${IMAGEDIR}/MLO-${MACHINE} ] ; then
@@ -107,6 +108,7 @@ run_root() {
 	cp ${IMAGEDIR}/u-boot-${MACHINE}.img /tmp/tmp_mount$$/u-boot.img
 	cp ${IMAGEDIR}/uImage-${MACHINE}.bin /tmp/tmp_mount$$/uImage
 	cp ${IMAGEDIR}/*.dtb /tmp/tmp_mount$$
+	sleep 1
 	umount ${DevicePath}1 || exit 1
 
 	# rootfs
