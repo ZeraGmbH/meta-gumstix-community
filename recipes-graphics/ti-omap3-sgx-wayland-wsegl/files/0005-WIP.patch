@@ -1,0 +1,871 @@
+From c1a0f2cd1987dd33df0d479ebba0356e48159741 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Fri, 14 Feb 2014 14:43:05 +0100
+Subject: [PATCH 5/5] WIP
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ common/log.c                      |  32 +++++
+ common/log.h                      |  10 +-
+ common/server_wlegl.cpp           |   1 +
+ common/server_wlegl.h             |   2 +
+ common/wsegl_buffer_sizes.h       |   6 +
+ libegl/{egl.c => egl.cpp}         | 261 +++++++++++++++++++++++++++++++++-----
+ libegl/libegl.pro                 |   2 +-
+ libwayland-egl/wayland-egl-priv.h |  11 +-
+ wsegl/waylandwsegl.c              |  59 +++++----
+ 9 files changed, 324 insertions(+), 60 deletions(-)
+ create mode 100644 common/wsegl_buffer_sizes.h
+ rename libegl/{egl.c => egl.cpp} (59%)
+
+diff --git a/common/log.c b/common/log.c
+index 4d7e83a..d07ecee 100644
+--- a/common/log.c
++++ b/common/log.c
+@@ -1,8 +1,38 @@
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <stdarg.h>
++#include <sys/time.h>
++#include <time.h>
+ 
+ static int logLevel = -1;
++static int cached_tm_mday = -1;
++
++static void log_timestamp(void)
++{
++	struct timeval tv;
++	struct tm *brokendown_time;
++	char string[128];
++
++	gettimeofday(&tv, NULL);
++
++	brokendown_time = localtime(&tv.tv_sec);
++	if (brokendown_time == NULL)
++	{
++		printf("[(NULL)localtime] sgx");
++		return;
++	}
++
++	if (brokendown_time->tm_mday != cached_tm_mday) {
++		strftime(string, sizeof string, "%Y-%m-%d %Z", brokendown_time);
++		printf("Date sgx: %s\n", string);
++
++		cached_tm_mday = brokendown_time->tm_mday;
++	}
++
++	strftime(string, sizeof string, "%H:%M:%S", brokendown_time);
++
++	printf("[%s.%03li] sgx: ", string, tv.tv_usec/1000);
++}
+ 
+ static void
+ log_init()
+@@ -24,6 +54,7 @@ wsegl_info(const char *fmt, ...)
+     if (logLevel == 0)
+         return;
+ 
++    log_timestamp();
+     va_list args;
+     va_start(args, fmt);
+     vprintf(fmt, args);
+@@ -40,6 +71,7 @@ wsegl_debug(const char *fmt, ...)
+     if (logLevel < 2)
+         return;
+ 
++    log_timestamp();
+     va_list args;
+     va_start(args, fmt);
+     vprintf(fmt, args);
+diff --git a/common/log.h b/common/log.h
+index 808a716..ba95fcb 100644
+--- a/common/log.h
++++ b/common/log.h
+@@ -1,13 +1,21 @@
+ #ifndef LOG_H
+ 
++#ifdef  __cplusplus
++extern "C" {
++#endif
++
+ #include <stdlib.h>
+ #include <stdio.h>
+ #include <stdarg.h>
+ 
+ void
+-wsegl_log(const char *fmt, ...);
++wsegl_info(const char *fmt, ...);
+ void
+ wsegl_debug(const char *fmt, ...);
+ 
++#ifdef  __cplusplus
++}
++#endif
++
+ #endif
+ 
+diff --git a/common/server_wlegl.cpp b/common/server_wlegl.cpp
+index fde3a86..b96dc7a 100644
+--- a/common/server_wlegl.cpp
++++ b/common/server_wlegl.cpp
+@@ -21,6 +21,7 @@
+  */
+ 
+ #include <string.h>
++#include "wsegl_buffer_sizes.h"
+ 
+ #include <EGL/egl.h>
+ #include <EGL/eglext.h>
+diff --git a/common/server_wlegl.h b/common/server_wlegl.h
+index 7f15bb0..bca1d01 100644
+--- a/common/server_wlegl.h
++++ b/common/server_wlegl.h
+@@ -23,6 +23,8 @@
+ #ifndef SERVER_WLEGL_H
+ #define SERVER_WLEGL_H
+ 
++#include "wsegl_buffer_sizes.h"
++
+ #include <EGL/egl.h>
+ #include <EGL/eglext.h>
+ 
+diff --git a/common/wsegl_buffer_sizes.h b/common/wsegl_buffer_sizes.h
+new file mode 100644
+index 0000000..1890b5b
+--- /dev/null
++++ b/common/wsegl_buffer_sizes.h
+@@ -0,0 +1,6 @@
++#ifndef __wsegl_buffer_sizes_h_
++#define __wsegl_buffer_sizes_h_
++
++#define WAYLANDWSEGL_BACK_BUFFER_COUNT     2
++
++#endif /* __wsegl_buffer_sizes_h_ */
+diff --git a/libegl/egl.c b/libegl/egl.cpp
+similarity index 59%
+rename from libegl/egl.c
+rename to libegl/egl.cpp
+index 3209f29..8dcffaf 100644
+--- a/libegl/egl.c
++++ b/libegl/egl.cpp
+@@ -15,15 +15,26 @@
+  *
+  */
+ 
++#include "wsegl_buffer_sizes.h"
++
+ /* EGL function pointers */
+ #define EGL_EGLEXT_PROTOTYPES
+ #include <EGL/egl.h>
+ #include <EGL/eglext.h>
+ 
++/* TI headers don't define these */
+ #ifndef EGL_WAYLAND_BUFFER_WL
+-/* TI headers don't define this */
+ #define EGL_WAYLAND_BUFFER_WL    0x31D5 /* eglCreateImageKHR target */
+ #endif
++#ifndef EGL_WAYLAND_PLANE_WL
++#define EGL_WAYLAND_PLANE_WL     0x31D6 /* eglCreateImageKHR attribute */
++#endif
++#ifndef EGL_BUFFER_AGE_EXT
++#define EGL_BUFFER_AGE_EXT       0x313D /* eglQuerySurface attribute */
++#endif
++#ifndef EGL_TEXTURE_EXTERNAL_WL
++#define EGL_TEXTURE_EXTERNAL_WL  0x31DA
++#endif
+ 
+ #include <dlfcn.h>
+ #include <stddef.h>
+@@ -31,6 +42,8 @@
+ #include <malloc.h>
+ #include <string.h>
+ #include <assert.h>
++#include <stdbool.h>
++#include <map>
+ 
+ #define WANT_WAYLAND
+ 
+@@ -40,6 +53,7 @@
+ #endif
+ 
+ #include "log.h"
++#include "../libwayland-egl/wsegl.h"
+ 
+ static void *_libegl = NULL;
+ 
+@@ -116,6 +130,9 @@ static EGLBoolean (*_eglDestroyImageKHR) (EGLDisplay dpy, EGLImageKHR image) = N
+ 
+ static __eglMustCastToProperFunctionPointerType (*_eglGetProcAddress)(const char *procname) = NULL;
+ 
++static bool ti_egl_supports_wlbind = false;
++static bool ti_egl_supports_bufferage = false;
++
+ static void _init_egl()
+ {
+ 	_libegl = (void *) dlopen(getenv("LIBEGL") ? getenv("LIBEGL") : "/usr/lib/sgx/libEGL-sgx.so", RTLD_LAZY);
+@@ -131,15 +148,20 @@ EGLint eglGetError(void)
+ 
+ EGLDisplay eglGetDisplay(EGLNativeDisplayType display_id)
+ {
++	wsegl_info("eglGetDisplay %d", display_id);
+ 	EGL_DLSYM(&_eglGetDisplay, "eglGetDisplay");
+ 	return (*_eglGetDisplay)(display_id);
+ }
+ 
+ EGLBoolean eglInitialize(EGLDisplay dpy, EGLint *major, EGLint *minor)
+ {
+-	wsegl_info("wayland-wsegl: eglInitialize");
++	wsegl_info("eglInitialize %d", dpy);
+ 	EGL_DLSYM(&_eglInitialize, "eglInitialize");
+-	return (*_eglInitialize)(dpy, major, minor);
++	EGLBoolean ret = (*_eglInitialize)(dpy, major, minor);
++	/* ensure that we detect ti extra egl support */
++	if (ret == EGL_TRUE)
++		eglQueryString(dpy, EGL_EXTENSIONS);
++	return ret;
+ }
+ 
+ EGLBoolean eglTerminate(EGLDisplay dpy)
+@@ -151,17 +173,40 @@ EGLBoolean eglTerminate(EGLDisplay dpy)
+ const char * eglQueryString(EGLDisplay dpy, EGLint name)
+ {
+ 	EGL_DLSYM(&_eglQueryString, "eglQueryString");
+-#ifdef WANT_WAYLAND
+ 	if (name == EGL_EXTENSIONS)
+ 	{
+ 		const char *ret = (*_eglQueryString)(dpy, name);
+ 		static char eglextensionsbuf[512];
++		static char my_eglextionsions[252];
++
+ 		assert(ret != NULL);
+-		snprintf(eglextensionsbuf, 510, "%sEGL_WL_bind_wayland_display ", ret);
++
++		my_eglextionsions[0] = 0;
++#ifdef WANT_WAYLAND
++		if (strstr(ret, "EGL_WL_bind_wayland_display"))
++		{
++			ti_egl_supports_wlbind = true;
++		}
++		else
++		{
++			wsegl_info("Adding EGL_WL_bind_wayland_display support");
++			strcat(my_eglextionsions, "EGL_WL_bind_wayland_display ");
++		}
++#endif
++
++		if (strstr(ret, "EGL_EXT_buffer_age"))
++		{
++			ti_egl_supports_bufferage = true;
++		}
++		else
++		{
++			wsegl_info("Adding EGL_EXT_buffer_age support");
++			strcat(my_eglextionsions, "EGL_EXT_buffer_age ");
++		}
++		snprintf(eglextensionsbuf, 510, "%s%s", ret, my_eglextionsions);
+ 		ret = eglextensionsbuf;
+ 		return ret;
+ 	}
+-#endif
+ 	return (*_eglQueryString)(dpy, name);
+ }
+ 
+@@ -190,38 +235,90 @@ EGLBoolean eglGetConfigAttrib(EGLDisplay dpy, EGLConfig config,
+ 			attribute, value);
+ }
+ 
++struct egl_age_info {
++	int age[WAYLANDWSEGL_BACK_BUFFER_COUNT];
++	int currentBackBuffer;
++};
++
++static std::map <EGLSurface, struct egl_age_info*> surface_age_map;
++
+ EGLSurface eglCreateWindowSurface(EGLDisplay dpy, EGLConfig config,
+ 		EGLNativeWindowType win,
+ 		const EGLint *attrib_list)
+ {
++	wsegl_info("eglCreateWindowSurface called: config %d win %d", config, win);
+ 	EGL_DLSYM(&_eglCreateWindowSurface, "eglCreateWindowSurface");
+-	return (*_eglCreateWindowSurface)(dpy, config, win, attrib_list);
++	EGLSurface surface = (*_eglCreateWindowSurface)(dpy, config, win, attrib_list);
++	if (surface != EGL_NO_SURFACE)
++	{
++		/* keep EGL window for ageing */
++		if (win == NULL)
++		{
++			wsegl_info("eglCreateWindowSurface returns: config %d surface %d (EGL window)", config, surface);
++			struct egl_age_info* age_info = malloc(sizeof(struct egl_age_info));
++			assert(age_info);
++			memset(age_info, 0, sizeof(struct egl_age_info));
++			assert(surface_age_map.find(surface) == surface_age_map.end());
++			surface_age_map[surface] = age_info;
++		}
++		else
++			wsegl_info("eglCreateWindowSurface returns: config %d surface %d (Wayland window) win: %d", config, surface, win);
++	}
++	return surface;
+ }
+ 
+ EGLSurface eglCreatePbufferSurface(EGLDisplay dpy, EGLConfig config,
+ 		const EGLint *attrib_list)
+ {
++	wsegl_info("eglCreatePbufferSurface called: config: %d", config);
+ 	EGL_DLSYM(&_eglCreatePbufferSurface, "eglCreatePbufferSurface");
+-	return (*_eglCreatePbufferSurface)(dpy, config, attrib_list);
++	EGLSurface surface = (*_eglCreatePbufferSurface)(dpy, config, attrib_list);
++	wsegl_info("eglCreatePbufferSurface returns: config: %d surface: %d", config, surface);
++	return surface;
+ }
+ 
+ EGLSurface eglCreatePixmapSurface(EGLDisplay dpy, EGLConfig config,
+ 		EGLNativePixmapType pixmap,
+ 		const EGLint *attrib_list)
+ {
++	wsegl_info("eglCreatePixmapSurface called: config: %d, pixmap %d", config, pixmap);
+ 	EGL_DLSYM(&_eglCreatePixmapSurface, "eglCreatePixmapSurface");
+-	return (*_eglCreatePixmapSurface)(dpy, config, pixmap, attrib_list);
++	EGLSurface surface =  (*_eglCreatePixmapSurface)(dpy, config, pixmap, attrib_list);
++	wsegl_info("eglCreatePixmapSurface returns config: %d, pixmap %d surface: %d", config, pixmap, surface);
++	return surface;
+ }
+ 
+ EGLBoolean eglDestroySurface(EGLDisplay dpy, EGLSurface surface)
+ {
++	wsegl_info("eglDestroySurface called: surface %d", surface);
+ 	EGL_DLSYM(&_eglDestroySurface, "eglDestroySurface");
+-	return (*_eglDestroySurface)(dpy, surface);
++	EGLBoolean ret = (*_eglDestroySurface)(dpy, surface);
++	if (ret == EGL_TRUE)
++		surface_age_map.erase(surface);
++	wsegl_info("eglDestroySurface returns: surface %d", surface);
++	return ret;
+ }
+ 
+ EGLBoolean eglQuerySurface(EGLDisplay dpy, EGLSurface surface,
+ 		EGLint attribute, EGLint *value)
+ {
++	if (!ti_egl_supports_bufferage && attribute == EGL_BUFFER_AGE_EXT)
++	{
++		if (surface_age_map.find(surface) == surface_age_map.end())
++		{
++			wsegl_info("eglQuerySurface: surface not found in surface_age_map!");
++			return EGL_FALSE;
++		}
++		else
++		{
++			struct egl_age_info* age_info;
++
++			assert(surface_age_map.find(surface) != surface_age_map.end());
++			age_info = surface_age_map[surface];
++			*value = age_info->age[age_info->currentBackBuffer];
++			return EGL_TRUE;
++		}
++	}
+ 	EGL_DLSYM(&_eglQuerySurface, "eglQuerySurface");
+ 	return (*_eglQuerySurface)(dpy, surface, attribute, value);
+ }
+@@ -280,29 +377,41 @@ EGLBoolean eglReleaseTexImage(EGLDisplay dpy, EGLSurface surface, EGLint buffer)
+ 
+ EGLBoolean eglSwapInterval(EGLDisplay dpy, EGLint interval)
+ {
++	wsegl_info("eglSwapInterval called: intervall %d", interval);
+ 	EGL_DLSYM(&_eglSwapInterval, "eglSwapInterval");
+-	return (*_eglSwapInterval)(dpy, interval);
++	EGLBoolean ret = (*_eglSwapInterval)(dpy, interval);
++	wsegl_info("eglSwapInterval returns: intervall %d", interval);
++	return ret;
+ }
+ 
+ EGLContext eglCreateContext(EGLDisplay dpy, EGLConfig config,
+ 		EGLContext share_context,
+ 		const EGLint *attrib_list)
+ {
++	wsegl_info("eglCreateContext called: config %d share_context %d", config, share_context);
+ 	EGL_DLSYM(&_eglCreateContext, "eglCreateContext");
+-	return (*_eglCreateContext)(dpy, config, share_context, attrib_list);
++	EGLContext ret = (*_eglCreateContext)(dpy, config, share_context, attrib_list);
++	wsegl_info("eglCreateContext returns: config %d share_context %d context %d", config, share_context, ret);
++	return ret;
+ }
+ 
+ EGLBoolean eglDestroyContext(EGLDisplay dpy, EGLContext ctx)
+ {
++	wsegl_info("eglDestroyContext called: context %d", ctx);
+ 	EGL_DLSYM(&_eglDestroyContext, "eglDestroyContext");
+-	return (*_eglDestroyContext)(dpy, ctx);
++	EGLBoolean ret = (*_eglDestroyContext)(dpy, ctx);
++	wsegl_info("eglDestroyContext returns: context %d", ctx);
++	return ret;
+ }
+ 
+ EGLBoolean eglMakeCurrent(EGLDisplay dpy, EGLSurface draw,
+ 		EGLSurface read, EGLContext ctx)
+ {
++	wsegl_info("eglMakeCurrent called: draw %d read %d context %d", draw, read, ctx);
+ 	EGL_DLSYM(&_eglMakeCurrent, "eglMakeCurrent");
+-	return (*_eglMakeCurrent)(dpy, draw, read, ctx);
++	EGLBoolean ret = (*_eglMakeCurrent)(dpy, draw, read, ctx);
++	wsegl_info("eglMakeCurrent returns: draw %d read %d context %d", draw, read, ctx);
++	return ret;
+ }
+ 
+ EGLContext eglGetCurrentContext(void)
+@@ -332,20 +441,46 @@ EGLBoolean eglQueryContext(EGLDisplay dpy, EGLContext ctx,
+ 
+ EGLBoolean eglWaitGL(void)
+ {
++	wsegl_info("eglWaitGL called");
+ 	EGL_DLSYM(&_eglWaitGL, "eglWaitGL");
+-	return (*_eglWaitGL)();
++	EGLBoolean ret = (*_eglWaitGL)();
++	wsegl_info("eglWaitGL returns");
++	return ret;
+ }
+ 
+ EGLBoolean eglWaitNative(EGLint engine)
+ {
++	wsegl_info("eglWaitNative called");
+ 	EGL_DLSYM(&_eglWaitNative, "eglWaitNative");
+-	return (*_eglWaitNative)(engine); 
++	EGLBoolean ret = (*_eglWaitNative)(engine);
++	wsegl_info("eglWaitNative returns");
++	return ret;
+ }
+ 
+ EGLBoolean eglSwapBuffers(EGLDisplay dpy, EGLSurface surface)
+ {
++	wsegl_info("eglSwapBuffers called: surface %d", surface);
+ 	EGL_DLSYM(&_eglSwapBuffers, "eglSwapBuffers");
+-	return (*_eglSwapBuffers)(dpy, surface);
++	EGLBoolean ret = (*_eglSwapBuffers)(dpy, surface);
++	if (ret == EGL_TRUE)
++	{
++		/* update ages for EGL-windows */
++		if (surface_age_map.find(surface) != surface_age_map.end())
++		{
++			int i;
++			struct egl_age_info* age_info;
++
++			age_info = surface_age_map[surface];
++			for (i = 0; i< WAYLANDWSEGL_BACK_BUFFER_COUNT; i++)
++				if (age_info->age[i] > 0)
++					age_info->age[i]++;
++			age_info->age[age_info->currentBackBuffer] = 1;
++			age_info->currentBackBuffer++;
++			age_info->currentBackBuffer%=WAYLANDWSEGL_BACK_BUFFER_COUNT;
++		}
++	}
++	wsegl_info("eglSwapBuffers returns: surface %d", surface);
++	return ret;
+ }
+ 
+ EGLBoolean eglCopyBuffers(EGLDisplay dpy, EGLSurface surface,
+@@ -357,6 +492,7 @@ EGLBoolean eglCopyBuffers(EGLDisplay dpy, EGLSurface surface,
+ 
+ static EGLImageKHR _my_eglCreateImageKHR(EGLDisplay dpy, EGLContext ctx, EGLenum target, EGLClientBuffer buffer, const EGLint *attrib_list)
+ {
++	wsegl_info("eglCreateImageKHR called: context %d target %d buffer %d", ctx, target, buffer);
+ 	if (_eglCreateImageKHR == NULL) {
+ 		/* we can't EGL_DLSYM this, because it doesn't exist in
+ 		 * SGX's libEGL. we also can't ask ourselves for the location of
+@@ -367,19 +503,77 @@ static EGLImageKHR _my_eglCreateImageKHR(EGLDisplay dpy, EGLContext ctx, EGLenum
+ 		_eglCreateImageKHR = (*_eglGetProcAddress)("eglCreateImageKHR");
+ 	}
+ 
++	EGLImageKHR ret;
+ 	if (target == EGL_WAYLAND_BUFFER_WL) {
+-		EGLImageKHR ret = (*_eglCreateImageKHR)(dpy, EGL_NO_CONTEXT, EGL_NATIVE_PIXMAP_KHR, buffer, attrib_list);
+-		return ret;
++		/* TI implementation does not know EGL_WAYLAND_PLANE_WL so remove it for now.
++		 * In my test environment there was only plane 0 required (EGL_TEXTURE_RGB/EGL_TEXTURE_RGBA)
++		 * so removing plane information is not mandatory */
++		EGLint *attrib_source, *attrib_dest;
++		int attribs_count = 0;
++		int found_EGL_WAYLAND_PLANE_WL = 0;
++
++		/* first check number of attributes */
++		for(attrib_source = attrib_list; attrib_source != 0 && *attrib_source != EGL_NONE; ++attrib_source)
++		{
++			++attribs_count;
++			if (*attrib_source == EGL_WAYLAND_PLANE_WL)
++			{
++				found_EGL_WAYLAND_PLANE_WL = 1;
++				/*wsegl_debug("eglCreateImageKHR: removing attribute EGL_WAYLAND_PLANE_WL(%d)", *(attrib_source+1));*/
++			}
++		}
++		/* rebuild without EGL_WAYLAND_PLANE_WL */
++		if (found_EGL_WAYLAND_PLANE_WL && attribs_count >= 2)
++			attribs_count -= 2;
++		EGLint *attrib_list_new = malloc(sizeof(EGLint *) * (attribs_count+1)); /* terminate with EGL_NONE */
++		assert(attrib_list_new != NULL);
++		for(attrib_source = attrib_list, attrib_dest = attrib_list_new;
++			attrib_source != 0 && *attrib_source != EGL_NONE;
++			++attrib_source)
++		{
++			/* ignore EGL_WAYLAND_PLANE_WL + plane */
++			if (*attrib_source == EGL_WAYLAND_PLANE_WL)
++			{
++				++attrib_source;
++			}
++			else
++			{
++				*attrib_dest = *attrib_source;
++				++attrib_dest;
++			}
++		}
++		*attrib_dest = EGL_NONE;
++		ret = (*_eglCreateImageKHR)(dpy, EGL_NO_CONTEXT, EGL_NATIVE_PIXMAP_KHR, buffer, attrib_list_new);
++		free(attrib_list_new);
++		wsegl_info("eglCreateImageKHR(EGL_WAYLAND_BUFFER_WL): attribs_count %d", attribs_count);
+ 	}
++	else
++		ret = (*_eglCreateImageKHR)(dpy, ctx, target, buffer, attrib_list);
++	wsegl_info("eglCreateImageKHR returns: context %d target %d buffer %d image %d", ctx, target, buffer, ret);
++	return ret;
++}
+ 
+-
+-	EGLImageKHR ret = (*_eglCreateImageKHR)(dpy, ctx, target, buffer, attrib_list);
++EGLBoolean _my_eglDestroyImageKHR(EGLDisplay dpy, EGLImageKHR image)
++{
++	if (_eglDestroyImageKHR == NULL) {
++		/* we can't EGL_DLSYM this, because it doesn't exist in
++		 * SGX's libEGL. we also can't ask ourselves for the location of
++		 * eglGetProcAddress, otherwise we'll end up calling ourselves again, so
++		 * we must look up eglGetProcAddress first and ask SGX
++		 */
++		EGL_DLSYM(&_eglGetProcAddress, "eglGetProcAddress");
++		_eglDestroyImageKHR = (*_eglGetProcAddress)("eglDestroyImageKHR");
++	}
++	wsegl_info("eglDestroyImageKHR called: image %d", image);
++	EGLBoolean ret = (*_eglDestroyImageKHR)(dpy, image);
++	wsegl_info("eglDestroyImageKHR returns: image %d", image);
+ 	return ret;
+ }
+ 
+ #ifdef WANT_WAYLAND
+ static EGLBoolean _my_eglBindWaylandDisplayWL(EGLDisplay dpy, struct wl_display *display)
+ {
++	wsegl_info("eglBindWaylandDisplayWL called: EGLDisplay %d WLDisplay %d", dpy, display);
+ 	server_wlegl_create(display);
+ }
+ 
+@@ -391,10 +585,21 @@ static EGLBoolean _my_eglQueryWaylandBufferWL(EGLDisplay dpy, struct wl_buffer *
+ {
+ 	struct server_wlegl_buffer *buf = server_wlegl_buffer_from(buffer);
+ 
+-	struct remote_window_buffer *awb = (struct RemoteWindowBuffer *)buf->buf;
++	struct remote_window_buffer *awb = buf->buf;
+ 
+ 	if (attribute == EGL_TEXTURE_FORMAT) {
+-		*value = awb->format;
++		switch(awb->format) {
++			case WSEGL_PIXELFORMAT_RGB565:
++				*value = EGL_TEXTURE_RGB;
++				break;
++			case WSEGL_PIXELFORMAT_ARGB8888:
++			case WSEGL_PIXELFORMAT_4444:
++				*value = EGL_TEXTURE_RGBA;
++				break;
++			default:
++				*value = EGL_TEXTURE_EXTERNAL_WL;
++		}
++		wsegl_info("eglQueryWaylandBufferWL(EGL_TEXTURE_FORMAT) returns %d", *value);
+ 		return EGL_TRUE;
+ 	} else if (attribute == EGL_WIDTH) {
+ 		*value = awb->width;
+@@ -415,6 +620,10 @@ __eglMustCastToProperFunctionPointerType eglGetProcAddress(const char *procname)
+ 	{
+ 		return _my_eglCreateImageKHR;
+ 	} 
++	if (strcmp(procname, "eglDestroyImageKHR") == 0)
++	{
++		return _my_eglDestroyImageKHR;
++	}
+ #ifdef WANT_WAYLAND
+ 	else if (strcmp(procname, "eglBindWaylandDisplayWL") == 0)
+ 	{
+@@ -432,11 +641,5 @@ __eglMustCastToProperFunctionPointerType eglGetProcAddress(const char *procname)
+ 	return (*_eglGetProcAddress)(procname);
+ }
+ 
+-EGLBoolean eglDestroyImageKHR(EGLDisplay dpy, EGLImageKHR image)
+-{
+-	EGL_DLSYM(&_eglDestroyImageKHR, "eglDestroyImageKHR");
+-	return (*_eglDestroyImageKHR)(dpy, image);
+-}
+-
+ 
+ // vim:ts=4:sw=4:noexpandtab
+diff --git a/libegl/libegl.pro b/libegl/libegl.pro
+index e1ddb01..fed5c06 100644
+--- a/libegl/libegl.pro
++++ b/libegl/libegl.pro
+@@ -2,7 +2,7 @@ TEMPLATE = lib
+ TARGET = EGL
+ 
+ QT = 
+-SOURCES = egl.c
++SOURCES = egl.cpp
+ 
+ 
+ include(../common/common.pri)
+diff --git a/libwayland-egl/wayland-egl-priv.h b/libwayland-egl/wayland-egl-priv.h
+index 387ca42..03ade05 100644
+--- a/libwayland-egl/wayland-egl-priv.h
++++ b/libwayland-egl/wayland-egl-priv.h
+@@ -42,6 +42,7 @@ extern "C" {
+ #define WL_EGL_EXPORT
+ #endif
+ 
++#include "wsegl_buffer_sizes.h"
+ #include <stdbool.h>
+ #include <wayland-client.h>
+ #include <pvr2d.h>
+@@ -54,9 +55,6 @@ typedef struct wl_egl_window* NativeWindowType;
+ #include "wayland-sgx-server-protocol.h"
+ #include "wsegl.h"
+ 
+-#define WAYLANDWSEGL_MAX_BACK_BUFFERS     2
+-#define WAYLANDWSEGL_MAX_FLIP_BUFFERS 	  2
+-
+ enum WWSEGL_DRAWABLE_TYPE
+ {
+      WWSEGL_DRAWABLE_TYPE_UNKNOWN,
+@@ -107,13 +105,12 @@ struct wl_egl_window {
+ 
+ 	WSEGLPixelFormat   format;
+ 	PVR2DMEMINFO	   *frontBufferPVRMEM;
+-	PVR2DMEMINFO       *backBuffers[WAYLANDWSEGL_MAX_BACK_BUFFERS];
+-	struct wl_buffer   *drmbuffers[WAYLANDWSEGL_MAX_BACK_BUFFERS];
++	PVR2DMEMINFO       *backBuffers[WAYLANDWSEGL_BACK_BUFFER_COUNT];
++	struct wl_buffer   *drmbuffers[WAYLANDWSEGL_BACK_BUFFER_COUNT];
+ 	int                numFlipBuffers;
+ 	PVR2DFLIPCHAINHANDLE flipChain;
+-    PVR2DMEMINFO       *flipBuffers[WAYLANDWSEGL_MAX_FLIP_BUFFERS];
+ 
+-    PVR2D_HANDLE exporthandles[WAYLANDWSEGL_MAX_BACK_BUFFERS];
++	PVR2D_HANDLE        exporthandles[WAYLANDWSEGL_BACK_BUFFER_COUNT];
+ 	
+ 	int                 currentBackBuffer;
+ 	int                 backBuffersValid;
+diff --git a/wsegl/waylandwsegl.c b/wsegl/waylandwsegl.c
+index 156f30f..807a12e 100644
+--- a/wsegl/waylandwsegl.c
++++ b/wsegl/waylandwsegl.c
+@@ -62,6 +62,7 @@
+ #include "wayland-sgx-server-protocol.h"
+ #include "wayland-sgx-client-protocol.h"
+ #include "server_wlegl_buffer.h"
++#include "wsegl_buffer_sizes.h"
+ 
+ static WSEGLCaps const wseglDisplayCaps[] = {
+     {WSEGL_CAP_WINDOWS_USE_HW_SYNC, 1},
+@@ -193,6 +194,7 @@ static PVR2DFORMAT wsegl2pvr2dformat(WSEGLPixelFormat format)
+ /* Determine if nativeDisplay is a valid display handle */
+ static WSEGLError wseglIsDisplayValid(NativeDisplayType nativeDisplay)
+ {
++  wsegl_info("wseglIsDisplayValid called %d", nativeDisplay);
+   return WSEGL_SUCCESS;
+ }
+ 
+@@ -228,7 +230,7 @@ static void registry_handle_global(void *data, struct wl_registry *registry, uin
+     const char *interface, uint32_t version)
+ {
+     struct wl_egl_display *egldisplay = (struct wl_egl_display *)data;
+-
++    wsegl_info("registry_handle_global called for interface %s", interface);
+     if (strcmp(interface, "sgx_wlegl") == 0) {
+         egldisplay->sgx_wlegl = (struct sgx_wlegl *)wl_registry_bind(registry, name, &sgx_wlegl_interface, 1);
+     }
+@@ -376,14 +378,10 @@ static WSEGLError allocateBackBuffers(struct wl_egl_display *egldisplay, NativeW
+         PVR2DGetFlipChainBuffers(egldisplay->context,
+                                      nativeWindow->flipChain,
+                                      &numBuffers,
+-                                     nativeWindow->flipBuffers);
+-        for (index = 0; index < numBuffers; ++index)
+-        {
+-             nativeWindow->backBuffers[index] = nativeWindow->flipBuffers[index];
+-        }
++                                     nativeWindow->backBuffers);
+     }
+     else {
+-	    for (index = 0; index < WAYLANDWSEGL_MAX_BACK_BUFFERS; ++index)
++	    for (index = 0; index < WAYLANDWSEGL_BACK_BUFFER_COUNT; ++index)
+ 	    {
+ 		if (PVR2DMemAlloc(egldisplay->context,
+ 			      nativeWindow->strideBytes * nativeWindow->height,
+@@ -430,6 +428,7 @@ static WSEGLError wseglCreateWindowDrawable
+      WSEGLRotationAngle *rotationAngle)
+ {
+     struct wl_egl_display *egldisplay = (struct wl_egl_display *) display;
++    wsegl_info("wseglCreateWindowDrawable called drawable %d win %d", *drawable, nativeWindow);
+     int index;
+     /* Framebuffer */
+     if (nativeWindow == NULL)
+@@ -457,11 +456,14 @@ static WSEGLError wseglCreateWindowDrawable
+ 
+        if (displayInfo.ulMaxFlipChains > 0 && displayInfo.ulMaxBuffersInChain > 0)
+               nativeWindow->numFlipBuffers = displayInfo.ulMaxBuffersInChain;
+-       if (nativeWindow->numFlipBuffers > WAYLANDWSEGL_MAX_FLIP_BUFFERS)
+-              nativeWindow->numFlipBuffers = WAYLANDWSEGL_MAX_FLIP_BUFFERS;
+-
+-       /* Workaround for broken devices, seen in debugging */
+-       if (nativeWindow->numFlipBuffers < 2)
++       if (nativeWindow->numFlipBuffers > WAYLANDWSEGL_BACK_BUFFER_COUNT)
++              nativeWindow->numFlipBuffers = WAYLANDWSEGL_BACK_BUFFER_COUNT;
++
++       /* EGL_BUFFER_AGE_EXT is implemented in egl.c since we don't have a
++        * eglQuerySurface callback here. To make it work properly we must
++        * ensure that we support a certain number of back buffers
++        * (WAYLANDWSEGL_BACK_BUFFER_COUNT) for blitting/flipping case */
++       if (nativeWindow->numFlipBuffers < WAYLANDWSEGL_BACK_BUFFER_COUNT)
+               nativeWindow->numFlipBuffers = 0;
+     }
+     else
+@@ -489,7 +491,7 @@ static WSEGLError wseglCreateWindowDrawable
+        /* Wayland window */  
+        if (nativeWindow->display->display != NULL)
+        {
+-            for (index = 0; index < WAYLANDWSEGL_MAX_BACK_BUFFERS; index++)
++            for (index = 0; index < WAYLANDWSEGL_BACK_BUFFER_COUNT; index++)
+             {
+               PVR2D_HANDLE name;
+ 
+@@ -513,12 +515,13 @@ static WSEGLError wseglCreateWindowDrawable
+     return WSEGL_SUCCESS;
+ }
+ 
+-/* Create the WSEGL drawable version of a native pixmap */
++/* Create the WSEGL drawable version of a native pixmap (called by eglCreateImageKHR) */
+ static WSEGLError wseglCreatePixmapDrawable
+     (WSEGLDisplayHandle display, WSEGLConfig *config,
+      WSEGLDrawableHandle *drawable, NativePixmapType nativePixmap,
+      WSEGLRotationAngle *rotationAngle)
+ {
++    wsegl_info("wseglCreatePixmapDrawable called: drawable %d nativePixmap %d", drawable, nativePixmap);
+     struct wl_egl_display *egldisplay = (struct wl_egl_display *) display;
+     struct server_wlegl_buffer *buffer = (struct server_wlegl_buffer *)nativePixmap;
+ 
+@@ -530,6 +533,7 @@ static WSEGLError wseglCreatePixmapDrawable
+     assert(PVR2DMemMap(egldisplay->context, 0, (void *)pixmap->handle, &pixmap->pvrmem) == PVR2D_OK);
+     *drawable = (WSEGLDrawableHandle) pixmap;
+     *rotationAngle = WSEGL_ROTATE_0;
++    wsegl_info("wseglCreatePixmapDrawable returns: drawable %d nativePixmap %d pixmap %d", drawable, nativePixmap, pixmap);
+     return WSEGL_SUCCESS;
+ }
+ 
+@@ -539,9 +543,11 @@ static WSEGLError wseglDeleteDrawable(WSEGLDrawableHandle _drawable)
+     struct wl_egl_window *drawable = (struct wl_egl_window *) _drawable;
+ 
+     int index;
+-    int numBuffers = WAYLANDWSEGL_MAX_BACK_BUFFERS;
++    int numBuffers = WAYLANDWSEGL_BACK_BUFFER_COUNT;
+ 
++    wsegl_info("wseglDeleteDrawable called %d / %d", *drawable, drawable);
+     if (drawable->header.type == WWSEGL_DRAWABLE_TYPE_WINDOW) {
++	wsegl_info("wseglDeleteDrawable Window called %d / %d", *drawable, drawable);
+         for (index = 0; index < numBuffers; ++index) {
+             if (drawable->drmbuffers[index])
+                 wl_buffer_destroy(drawable->drmbuffers[index]);
+@@ -552,21 +558,23 @@ static WSEGLError wseglDeleteDrawable(WSEGLDrawableHandle _drawable)
+         memset(drawable->drmbuffers, 0, sizeof(drawable->drmbuffers));
+         memset(drawable->backBuffers, 0, sizeof(drawable->backBuffers));
+         drawable->backBuffersValid = 0;
+-        return WSEGL_SUCCESS;
+     } else if (drawable->header.type == WWSEGL_DRAWABLE_TYPE_PIXMAP) {
+         struct wl_egl_pixmap *pixmap = (struct wl_egl_pixmap *)drawable;
++	wsegl_info("wseglDeleteDrawable Pixmap called pixmap %d", pixmap);
+         PVR2DMemFree(pixmap->display->context, pixmap->pvrmem);
+     } else {
++	wsegl_info("wseglDeleteDrawable Unknown called %d / %d", *drawable, drawable);
+         assert(0);
+     }
+ 
++    wsegl_info("wseglDeleteDrawable returns %d / %d", *drawable, drawable);
+     return WSEGL_SUCCESS;
+ }
+ 
+ static void
+ wayland_frame_callback(void *data, struct wl_callback *callback, uint32_t time)
+ {
+-    //wsegl_info("wayland-wsegl: wayland_frame_callback");
++    wsegl_info("wayland-wsegl: wayland_frame_callback");
+     struct wl_egl_window *drawable = (struct wl_egl_window *)data;
+     drawable->display->frame_callback = NULL;
+     wl_callback_destroy(callback);
+@@ -583,6 +591,7 @@ static WSEGLError wseglSwapDrawable
+     struct wl_egl_window *drawable = (struct wl_egl_window *) _drawable;
+     struct wl_callback *callback;
+ 
++    wsegl_info("wseglSwapDrawable called: drawable %d", drawable);
+     if (drawable->numFlipBuffers)
+     {
+ //        wsegl_info("PRESENT FLIP");
+@@ -623,6 +632,9 @@ static WSEGLError wseglSwapDrawable
+         wl_surface_attach(drawable->surface, wlbuf, 0, 0); 
+         wl_surface_damage(drawable->surface, 0, 0, drawable->width, drawable->height);
+         wl_surface_commit(drawable->surface);
++        // No double buffering for wayland windows
++	wsegl_info("wseglSwapDrawable wayland returns: drawable %d", drawable);
++        return WSEGL_SUCCESS;
+     }
+     else
+     {
+@@ -667,8 +679,9 @@ static WSEGLError wseglSwapDrawable
+     }
+     
+     drawable->currentBackBuffer   
+-      = (drawable->currentBackBuffer + 1) % WAYLANDWSEGL_MAX_BACK_BUFFERS;
++      = (drawable->currentBackBuffer + 1) % WAYLANDWSEGL_BACK_BUFFER_COUNT;
+ 
++    wsegl_info("wseglSwapDrawable EGL returns: drawable %d", drawable);
+     return WSEGL_SUCCESS;
+ }
+ 
+@@ -708,8 +721,8 @@ static int wseglGetBuffers(struct wl_egl_window *drawable, PVR2DMEMINFO **source
+       return 0;
+   *render = drawable->backBuffers[drawable->currentBackBuffer];
+   *source = drawable->backBuffers
+-  [(drawable->currentBackBuffer + WAYLANDWSEGL_MAX_BACK_BUFFERS - 1) %
+-                 WAYLANDWSEGL_MAX_BACK_BUFFERS];
++  [(drawable->currentBackBuffer + WAYLANDWSEGL_BACK_BUFFER_COUNT - 1) %
++                 WAYLANDWSEGL_BACK_BUFFER_COUNT];
+   return 1;
+ }                                                   
+ 
+@@ -797,14 +810,14 @@ static WSEGLError wseglGetDrawableParameters
+ }
+ 
+ 
+-/* Function stub for ConnectDrawable() */
++/* Function stub for ConnectDrawable() caused by eglMakeCurrent */
+ static WSEGLError wseglConnectDrawable(WSEGLDrawableHandle hDrawable)
+ {
+     WSEGL_UNREFERENCED_PARAMETER(hDrawable);
+     return WSEGL_SUCCESS;
+ }
+ 
+-/* Function stub for DisconnectDrawable() */
++/* Function stub for DisconnectDrawable() caused by eglMakeCurrent */
+ static WSEGLError wseglDisconnectDrawable(WSEGLDrawableHandle hDrawable)
+ {
+     WSEGL_UNREFERENCED_PARAMETER(hDrawable);
+@@ -812,8 +825,10 @@ static WSEGLError wseglDisconnectDrawable(WSEGLDrawableHandle hDrawable)
+ }
+ 
+ /* Function stub for FlagStartFrame() */
++/* Indicates that there have been rendering commands submitted by a client driver */
+ static WSEGLError wseglFlagStartFrame(void)
+ {
++    wsegl_info("wseglFlagStartFrame called");
+     return WSEGL_SUCCESS;
+ }
+ 
+-- 
+1.8.3.1
+

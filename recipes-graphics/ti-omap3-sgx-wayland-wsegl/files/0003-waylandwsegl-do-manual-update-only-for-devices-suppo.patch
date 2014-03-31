@@ -1,7 +1,7 @@
 From d2f71f888afa34849abc12352afad2a090f068e2 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
 Date: Tue, 4 Feb 2014 09:43:56 +0100
-Subject: [PATCH 3/9] waylandwsegl: do manual update only for devices
+Subject: [PATCH 3/5] waylandwsegl: do manual update only for devices
  supporting OMAPFB_UPDATE_WINDOW
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8

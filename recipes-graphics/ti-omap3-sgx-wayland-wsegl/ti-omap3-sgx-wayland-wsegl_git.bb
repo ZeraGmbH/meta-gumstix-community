@@ -9,10 +9,7 @@ SRC_URI = " \
 	file://0002-updates-for-1.10-Linux-DDK.patch \
 	file://0003-waylandwsegl-do-manual-update-only-for-devices-suppo.patch \
 	file://0004-waylandwsegl-do-not-pin-numFlipBuffers-to-zero.patch \
-	file://0005-close-framebuffer-in-case-it-is-not-used.patch \
-	file://0006-remove-flip-buffer-limits-pointers-and-share-back-bu.patch \
-	file://0007-Implement-EGL_EXT_buffer_age.patch \
-	file://0008-eglCreateImageKHR-remove-EGL_WAYLAND_PLANE_WL-attrib.patch \
+	file://0005-WIP.patch \
 	file://wayland-egl.pc.in \
 	file://egl.pc.in \
 "
