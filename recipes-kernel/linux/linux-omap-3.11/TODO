@@ -1,5 +1,3 @@
 * xf86-video-modesetting (not a kernel issue)
-* ehci-usb nonworking if not connected during boot
 * usb warnings
 * otg
-* suspend
