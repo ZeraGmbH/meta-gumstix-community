@@ -1,4 +1,6 @@
 * xf86-video-modesetting (not a kernel issue)
 * usb warnings
 * otg
-* wifi
+* libertas suspend/resume: 
+	1. resume unclean catched by MMC new card detected
+	2. In xfce-image suspend by power button: PM: Device mmc1:0001 failed to suspend: error -38

@@ -43,4 +43,7 @@ SRC_URI = " \
     file://smsc/0001-drivers-net-smsc911x-return-ENODEV-if-device-is-not-.patch \
     \
     file://usb/0001-board-overo.c-set-correct-phy-vcc-data.patch \
+    \
+    file://wifi/0001-board-overo.c-make-wifi-work.patch \
+    file://wifi/0002-libertas-don-t-return-ENOSYS-to-make-supend-work.patch \
 "
