@@ -46,4 +46,5 @@ SRC_URI = " \
     \
     file://wifi/0001-board-overo.c-make-wifi-work.patch \
     file://wifi/0002-libertas-don-t-return-ENOSYS-to-make-supend-work.patch \
+    file://wifi/0003-add-libertas_tf_sdio-module.patch \
 "
