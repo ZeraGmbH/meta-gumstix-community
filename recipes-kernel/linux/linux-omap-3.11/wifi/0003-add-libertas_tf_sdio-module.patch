@@ -282,7 +282,7 @@ index 0000000..43699fb
 +	},
 +};
 +MODULE_FIRMWARE("sd8686_helper.bin");
-+MODULE_FIRMWARE("libertas/lbtf_sdio.bin");
++MODULE_FIRMWARE("lbtf_sdio.bin");
 +
 +struct if_sdio_packet {
 +	struct if_sdio_packet	*next;
