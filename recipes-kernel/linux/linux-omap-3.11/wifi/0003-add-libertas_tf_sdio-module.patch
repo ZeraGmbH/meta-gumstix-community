@@ -1810,7 +1810,7 @@ index ad77b92..fbc0773 100644
  
  /* support functions for cmd.c */
 diff --git a/drivers/net/wireless/libertas_tf/main.c b/drivers/net/wireless/libertas_tf/main.c
-index 088de9d..803bb33 100644
+index 088de9d..9949d34 100644
 --- a/drivers/net/wireless/libertas_tf/main.c
 +++ b/drivers/net/wireless/libertas_tf/main.c
 @@ -19,7 +19,7 @@
@@ -2196,6 +2196,17 @@ index 088de9d..803bb33 100644
  	if (changes & BSS_CHANGED_BSSID) {
  		bool activate = !is_zero_ether_addr(bss_conf->bssid);
  		lbtf_set_bssid(priv, activate, bss_conf->bssid);
+@@ -574,8 +723,8 @@ int lbtf_rx(struct lbtf_private *priv, struct sk_buff *skb)
+ 		stats.flag |= RX_FLAG_FAILED_FCS_CRC;
+ 	stats.freq = priv->cur_freq;
+ 	stats.band = IEEE80211_BAND_2GHZ;
+-	stats.signal = prxpd->snr;
+-	priv->noise = prxpd->nf;
++	stats.signal = prxpd->snr-prxpd->nf;
++	priv->noise = -prxpd->nf;
+ 	/* Marvell rate index has a hole at value 4 */
+ 	if (prxpd->rx_rate > 4)
+ 		--prxpd->rx_rate;
 @@ -600,7 +749,7 @@ int lbtf_rx(struct lbtf_private *priv, struct sk_buff *skb)
  
  	lbtf_deb_rx("rx data: skb->len-sizeof(RxPd) = %d-%zd = %zd\n",
@@ -2214,6 +2225,15 @@ index 088de9d..803bb33 100644
  {
  	struct ieee80211_hw *hw;
  	struct lbtf_private *priv = NULL;
+@@ -637,7 +786,7 @@ struct lbtf_private *lbtf_add_card(void *card, struct device *dmdev)
+ 	priv->tx_skb = NULL;
+ 
+ 	hw->queues = 1;
+-	hw->flags = IEEE80211_HW_HOST_BROADCAST_PS_BUFFERING;
++	hw->flags = IEEE80211_HW_HOST_BROADCAST_PS_BUFFERING | IEEE80211_HW_SIGNAL_DBM;
+ 	hw->extra_tx_headroom = sizeof(struct txpd);
+ 	memcpy(priv->channels, lbtf_channels, sizeof(lbtf_channels));
+ 	memcpy(priv->rates, lbtf_rates, sizeof(lbtf_rates));
 @@ -648,13 +797,21 @@ struct lbtf_private *lbtf_add_card(void *card, struct device *dmdev)
  	hw->wiphy->bands[IEEE80211_BAND_2GHZ] = &priv->band;
  	hw->wiphy->interface_modes =
