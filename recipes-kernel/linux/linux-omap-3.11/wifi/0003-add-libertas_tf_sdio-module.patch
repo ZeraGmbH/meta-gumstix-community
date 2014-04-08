@@ -1,14 +1,13 @@
-From 9923b52dc6610b4f1371d7c0b3767bd2fe45aea9 Mon Sep 17 00:00:00 2001
+From 8874b755a8832b39b67d12cea95eecbca74b66d1 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
-Date: Fri, 4 Apr 2014 09:37:28 +0200
-Subject: [PATCH 4/4] add libertas_tf_sdio module
+Date: Tue, 8 Apr 2014 10:41:08 +0200
+Subject: [PATCH 3/3] add libertas_tf_sdio module
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
 TODO:
-  * breaks libertas_tf_usb see [1]
-  * async firmware upload not supported
+  * currently breaks libertas_tf_usb see [1]
 
 based on [2]
 
@@ -19,13 +18,13 @@ Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
 ---
  drivers/net/wireless/Kconfig                   |   10 +
  drivers/net/wireless/libertas_tf/Makefile      |    2 +
- drivers/net/wireless/libertas_tf/cmd.c         |   43 +-
- drivers/net/wireless/libertas_tf/deb_defs.h    |   12 +-
- drivers/net/wireless/libertas_tf/if_sdio.c     | 1466 ++++++++++++++++++++++++
+ drivers/net/wireless/libertas_tf/cmd.c         |   39 +-
+ drivers/net/wireless/libertas_tf/deb_defs.h    |   10 +-
+ drivers/net/wireless/libertas_tf/if_sdio.c     | 1437 ++++++++++++++++++++++++
  drivers/net/wireless/libertas_tf/if_sdio.h     |   56 +
- drivers/net/wireless/libertas_tf/libertas_tf.h |   43 +-
- drivers/net/wireless/libertas_tf/main.c        |  405 +++++--
- 8 files changed, 1925 insertions(+), 112 deletions(-)
+ drivers/net/wireless/libertas_tf/libertas_tf.h |   32 +-
+ drivers/net/wireless/libertas_tf/main.c        |  329 +++++-
+ 8 files changed, 1851 insertions(+), 64 deletions(-)
  create mode 100644 drivers/net/wireless/libertas_tf/if_sdio.c
  create mode 100644 drivers/net/wireless/libertas_tf/if_sdio.h
 
@@ -64,10 +63,10 @@ index ff5544d..1a44340 100644
  obj-$(CONFIG_LIBERTAS_THINFIRM_USB) += libertas_tf_usb.o
 +obj-$(CONFIG_LIBERTAS_THINFIRM_SDIO) += libertas_tf_sdio.o
 diff --git a/drivers/net/wireless/libertas_tf/cmd.c b/drivers/net/wireless/libertas_tf/cmd.c
-index 909ac36..0ed1fa7 100644
+index 909ac36..14145c5 100644
 --- a/drivers/net/wireless/libertas_tf/cmd.c
 +++ b/drivers/net/wireless/libertas_tf/cmd.c
-@@ -103,7 +101,7 @@ int lbtf_update_hw_spec(struct lbtf_private *priv)
+@@ -103,7 +103,7 @@ int lbtf_update_hw_spec(struct lbtf_private *priv)
  	priv->fwrelease = (priv->fwrelease << 8) |
  		(priv->fwrelease >> 24 & 0xff);
  
@@ -76,7 +75,7 @@ index 909ac36..0ed1fa7 100644
  		cmd.permanentaddr,
  		priv->fwrelease >> 24 & 0xff,
  		priv->fwrelease >> 16 & 0xff,
-@@ -254,7 +252,7 @@ static void lbtf_submit_command(struct lbtf_private *priv,
+@@ -254,7 +254,7 @@ static void lbtf_submit_command(struct lbtf_private *priv,
  
  	lbtf_deb_cmd("DNLD_CMD: command 0x%04x, seq %d, size %d\n",
  		     command, le16_to_cpu(cmd->seqnum), cmdsize);
@@ -85,7 +84,7 @@ index 909ac36..0ed1fa7 100644
  
  	ret = priv->hw_host_to_card(priv, MVMS_CMD, (u8 *) cmd, cmdsize);
  	spin_unlock_irqrestore(&priv->driver_lock, flags);
-@@ -349,6 +347,7 @@ void lbtf_set_mode(struct lbtf_private *priv, enum lbtf_mode mode)
+@@ -349,6 +349,7 @@ void lbtf_set_mode(struct lbtf_private *priv, enum lbtf_mode mode)
  	lbtf_deb_wext("Switching to mode: 0x%x\n", mode);
  	lbtf_cmd_async(priv, CMD_802_11_SET_MODE, &cmd.hdr, sizeof(cmd));
  
@@ -93,7 +92,7 @@ index 909ac36..0ed1fa7 100644
  	lbtf_deb_leave(LBTF_DEB_WEXT);
  }
  
-@@ -356,7 +355,7 @@ void lbtf_set_bssid(struct lbtf_private *priv, bool activate, const u8 *bssid)
+@@ -356,7 +357,7 @@ void lbtf_set_bssid(struct lbtf_private *priv, bool activate, const u8 *bssid)
  {
  	struct cmd_ds_set_bssid cmd;
  	lbtf_deb_enter(LBTF_DEB_CMD);
@@ -102,7 +101,7 @@ index 909ac36..0ed1fa7 100644
  	cmd.hdr.size = cpu_to_le16(sizeof(cmd));
  	cmd.activate = activate ? 1 : 0;
  	if (activate)
-@@ -366,13 +365,13 @@ void lbtf_set_bssid(struct lbtf_private *priv, bool activate, const u8 *bssid)
+@@ -366,13 +367,13 @@ void lbtf_set_bssid(struct lbtf_private *priv, bool activate, const u8 *bssid)
  	lbtf_deb_leave(LBTF_DEB_CMD);
  }
  
@@ -118,7 +117,7 @@ index 909ac36..0ed1fa7 100644
  
  	memcpy(cmd.macadd, mac_addr, ETH_ALEN);
  
-@@ -381,6 +380,21 @@ int lbtf_set_mac_address(struct lbtf_private *priv, uint8_t *mac_addr)
+@@ -381,6 +382,21 @@ int lbtf_set_mac_address(struct lbtf_private *priv, uint8_t *mac_addr)
  	return 0;
  }
  
@@ -140,7 +139,7 @@ index 909ac36..0ed1fa7 100644
  int lbtf_set_radio_control(struct lbtf_private *priv)
  {
  	int ret = 0;
-@@ -674,6 +688,12 @@ int __lbtf_cmd(struct lbtf_private *priv, uint16_t command,
+@@ -674,6 +690,12 @@ int __lbtf_cmd(struct lbtf_private *priv, uint16_t command,
  
  	lbtf_deb_enter(LBTF_DEB_HOST);
  
@@ -153,7 +152,7 @@ index 909ac36..0ed1fa7 100644
  	cmdnode = __lbtf_cmd_async(priv, command, in_cmd, in_cmd_size,
  				  callback, callback_arg);
  	if (IS_ERR(cmdnode)) {
-@@ -737,10 +757,13 @@ int lbtf_process_rx_command(struct lbtf_private *priv)
+@@ -737,10 +759,13 @@ int lbtf_process_rx_command(struct lbtf_private *priv)
  	respcmd = le16_to_cpu(resp->command);
  	result = le16_to_cpu(resp->result);
  
@@ -170,7 +169,7 @@ index 909ac36..0ed1fa7 100644
  	if (resp->seqnum != priv->cur_cmd->cmdbuf->seqnum) {
  		spin_unlock_irqrestore(&priv->driver_lock, flags);
 diff --git a/drivers/net/wireless/libertas_tf/deb_defs.h b/drivers/net/wireless/libertas_tf/deb_defs.h
-index 4bd3dc5..e16073e 100644
+index 4bd3dc5..8e86e11 100644
 --- a/drivers/net/wireless/libertas_tf/deb_defs.h
 +++ b/drivers/net/wireless/libertas_tf/deb_defs.h
 @@ -11,6 +11,9 @@
@@ -207,10 +206,10 @@ index 4bd3dc5..e16073e 100644
  static inline void lbtf_deb_hex(unsigned int grp, const char *prompt, u8 *buf, int len)
 diff --git a/drivers/net/wireless/libertas_tf/if_sdio.c b/drivers/net/wireless/libertas_tf/if_sdio.c
 new file mode 100644
-index 0000000..43699fb
+index 0000000..d47a8b3
 --- /dev/null
 +++ b/drivers/net/wireless/libertas_tf/if_sdio.c
-@@ -0,0 +1,1465 @@
+@@ -0,0 +1,1437 @@
 +/*
 + *  linux/drivers/net/wireless/libertas_tf/if_sdio.c
 + *
@@ -242,11 +241,6 @@ index 0000000..43699fb
 +#define DRV_NAME "lbtf_sdio"
 +
 +#include "libertas_tf.h"
-+// #include "host.h"
-+// #include "decl.h"
-+// #include "defs.h"
-+// #include "dev.h"
-+// #include "cmd.h"
 +#include "if_sdio.h"
 +
 +static char *lbtf_helper_name = NULL;
@@ -544,8 +538,6 @@ index 0000000..43699fb
 +	unsigned long timeout;
 +	int ret = 0;
 +
-+//	lbtf_deb_enter(LBTF_DEB_SDIO);
-+
 +	timeout = jiffies + HZ;
 +	while (1) {
 +		status = sdio_readb(card->func, IF_SDIO_STATUS, &ret);
@@ -558,7 +550,6 @@ index 0000000..43699fb
 +		mdelay(1);
 +	}
 +
-+//	lbtf_deb_leave_args(LBTF_DEB_SDIO, "ret %d", ret);
 +	return ret;
 +}
 +
@@ -861,9 +852,7 @@ index 0000000..43699fb
 +		req_size |= sdio_readb(card->func, IF_SDIO_RD_BASE + 1, &ret) << 8;
 +		if (ret)
 +			goto release;
-+/*
-+		lbtf_deb_sdio("firmware wants %d bytes\n", (int)req_size);
-+*/
++
 +		if (req_size == 0) {
 +			lbtf_deb_sdio("firmware helper gave up early\n");
 +			ret = -EIO;
@@ -883,10 +872,6 @@ index 0000000..43699fb
 +			chunk_size = min(req_size, (size_t)512);
 +
 +			memcpy(chunk_buffer, firmware, chunk_size);
-+/*
-+			lbtf_deb_sdio("sending %d bytes (%d bytes) chunk\n",
-+				chunk_size, (chunk_size + 31) / 32 * 32);
-+*/
 +			ret = sdio_writesb(card->func, card->ioport,
 +				chunk_buffer, roundup(chunk_size, 32));
 +			if (ret)
@@ -974,12 +959,6 @@ index 0000000..43699fb
 +			goto success;
 +		} else {
 +			lbtf_deb_sdio("attempting to reset and reload firmware\n");
-+
-+//			ret = if_sdio_enable_interrupts(card->priv);
-+// 			if (ret) {
-+// 				pr_err("Error enabling interrupts: %d", ret);
-+// 				goto out;
-+// 			}
 +
 +			if_sdio_reset_device(card);
 +			lbtf_reset_fw=0;
@@ -1522,15 +1501,7 @@ index 0000000..43699fb
 +	priv->disable_interrupts = if_sdio_disable_interrupts;
 +
 +	sdio_claim_host(func);
-+// 	/*
-+// 	 * Get rx_unit if the chip is SD8688 or newer.
-+// 	 * SD8385 & SD8686 do not have rx_unit.
-+// 	 */
-+// 	if ((card->model != IF_SDIO_MODEL_8385)
-+// 			&& (card->model != IF_SDIO_MODEL_8686))
-+// 		card->rx_unit = if_sdio_read_rx_unit(card);
-+// 	else
-+		card->rx_unit = 0;
++	card->rx_unit = 0;
 +
 +	sdio_release_host(func);
 +
@@ -1739,10 +1710,10 @@ index 0000000..12179c1
 +#define HOST_POWER_UP                   (0x1U << 1)
 +#endif
 diff --git a/drivers/net/wireless/libertas_tf/libertas_tf.h b/drivers/net/wireless/libertas_tf/libertas_tf.h
-index ad77b92..ef54508 100644
+index ad77b92..fbc0773 100644
 --- a/drivers/net/wireless/libertas_tf/libertas_tf.h
 +++ b/drivers/net/wireless/libertas_tf/libertas_tf.h
-@@ -46,6 +44,8 @@
+@@ -46,6 +46,8 @@
  
  #define CMD_ACT_GET			0x0000
  #define CMD_ACT_SET			0x0001
@@ -1751,7 +1722,7 @@ index ad77b92..ef54508 100644
  
  /* Define action or option for CMD_802_11_RESET */
  #define CMD_ACT_HALT			0x0003
-@@ -80,6 +80,7 @@ enum lbtf_mode {
+@@ -80,6 +82,7 @@ enum lbtf_mode {
  	LBTF_PASSIVE_MODE,
  	LBTF_STA_MODE,
  	LBTF_AP_MODE,
@@ -1759,7 +1730,7 @@ index ad77b92..ef54508 100644
  };
  
  /** Card Event definition */
-@@ -103,6 +104,7 @@ enum lbtf_mode {
+@@ -103,6 +106,7 @@ enum lbtf_mode {
  #define LBS_CMD_BUFFER_SIZE             (2 * 1024)
  #define MRVDRV_MAX_CHANNEL_SIZE		14
  #define MRVDRV_SNAP_HEADER_LEN          8
@@ -1767,7 +1738,7 @@ index ad77b92..ef54508 100644
  
  #define	LBS_UPLD_SIZE			2312
  #define DEV_NAME_LEN			32
-@@ -185,14 +187,20 @@ struct lbtf_private {
+@@ -185,14 +189,20 @@ struct lbtf_private {
  	   bit1 1/0=cmd_sent/cmd_tx_done,
  	   all other bits reserved 0 */
  	struct ieee80211_vif *vif;
@@ -1791,16 +1762,15 @@ index ad77b92..ef54508 100644
  
  	/** Wlan adapter data structure*/
  	/** STATUS variables */
-@@ -236,6 +244,8 @@ struct lbtf_private {
+@@ -236,6 +246,7 @@ struct lbtf_private {
  
  	struct sk_buff *skb_to_tx;
  	struct sk_buff *tx_skb;
-+	struct sk_buff *tx_skb_old;
 +	struct sk_buff_head tx_skb_buf;
  
  	/** NIC Operation characteristics */
  	u16 mac_control;
-@@ -256,6 +266,17 @@ struct lbtf_private {
+@@ -256,6 +267,15 @@ struct lbtf_private {
  
  	/* Most recently reported noise in dBm */
  	s8 noise;
@@ -1809,16 +1779,14 @@ index ad77b92..ef54508 100644
 +	u8 resp_idx;
 +	u8 resp_buf[2][LBS_UPLD_SIZE];
 +	u32 resp_len[2];
-+	
++
 +	/* beacon status info */
 +	bool beacon_enable;
 +	u16 beacon_int;
-+
-+
  };
  
  /* 802.11-related definitions */
-@@ -470,6 +491,8 @@ int lbtf_cmd_set_mac_multicast_addr(struct lbtf_private *priv);
+@@ -470,6 +490,8 @@ int lbtf_cmd_set_mac_multicast_addr(struct lbtf_private *priv);
  void lbtf_set_mode(struct lbtf_private *priv, enum lbtf_mode mode);
  void lbtf_set_bssid(struct lbtf_private *priv, bool activate, const u8 *bssid);
  int lbtf_set_mac_address(struct lbtf_private *priv, uint8_t *mac_addr);
@@ -1827,7 +1795,7 @@ index ad77b92..ef54508 100644
  
  int lbtf_set_channel(struct lbtf_private *priv, u8 channel);
  
-@@ -486,11 +509,11 @@ void lbtf_cmd_response_rx(struct lbtf_private *priv);
+@@ -486,11 +508,11 @@ void lbtf_cmd_response_rx(struct lbtf_private *priv);
  /* main.c */
  struct chan_freq_power *lbtf_get_region_cfp_table(u8 region,
  	int *cfp_no);
@@ -1842,10 +1810,10 @@ index ad77b92..ef54508 100644
  
  /* support functions for cmd.c */
 diff --git a/drivers/net/wireless/libertas_tf/main.c b/drivers/net/wireless/libertas_tf/main.c
-index 088de9d..4f2147d 100644
+index 088de9d..803bb33 100644
 --- a/drivers/net/wireless/libertas_tf/main.c
 +++ b/drivers/net/wireless/libertas_tf/main.c
-@@ -19,7 +18,7 @@
+@@ -19,7 +19,7 @@
  #define DRIVER_RELEASE_VERSION "004.p0"
  /* thinfirm version: 5.132.X.pX */
  #define LBTF_FW_VER_MIN		0x05840300
@@ -1854,7 +1822,7 @@ index 088de9d..4f2147d 100644
  #define QOS_CONTROL_LEN		2
  
  /* Module parameters */
-@@ -27,6 +26,10 @@ unsigned int lbtf_debug;
+@@ -27,6 +27,10 @@ unsigned int lbtf_debug;
  EXPORT_SYMBOL_GPL(lbtf_debug);
  module_param_named(libertas_tf_debug, lbtf_debug, int, 0644);
  
@@ -1865,33 +1833,15 @@ index 088de9d..4f2147d 100644
  static const char lbtf_driver_version[] = "THINFIRM-USB8388-" DRIVER_RELEASE_VERSION
  #ifdef DEBUG
  	"-dbg"
-@@ -149,20 +152,23 @@ static int lbtf_setup_firmware(struct lbtf_private *priv)
- 	int ret = -1;
- 
- 	lbtf_deb_enter(LBTF_DEB_FW);
-+
- 	/*
- 	 * Read priv address from HW
- 	 */
- 	memset(priv->current_addr, 0xff, ETH_ALEN);
- 	ret = lbtf_update_hw_spec(priv);
- 	if (ret) {
--		ret = -1;
--		goto done;
-+		   ret = -1;
-+		   goto done;
- 	}
+@@ -161,6 +165,7 @@ static int lbtf_setup_firmware(struct lbtf_private *priv)
  
  	lbtf_set_mac_control(priv);
  	lbtf_set_radio_control(priv);
 +	lbtf_set_mode(priv, LBTF_PASSIVE_MODE);
  
  	ret = 0;
-+
  done:
- 	lbtf_deb_leave_args(LBTF_DEB_FW, "ret: %d", ret);
- 	return ret;
-@@ -181,12 +187,12 @@ static void command_timer_fn(unsigned long data)
+@@ -181,12 +186,12 @@ static void command_timer_fn(unsigned long data)
  	spin_lock_irqsave(&priv->driver_lock, flags);
  
  	if (!priv->cur_cmd) {
@@ -1906,7 +1856,7 @@ index 088de9d..4f2147d 100644
  		le16_to_cpu(priv->cur_cmd->cmdbuf->command));
  
  	priv->cmd_timed_out = 1;
-@@ -203,6 +209,8 @@ static int lbtf_init_adapter(struct lbtf_private *priv)
+@@ -203,6 +208,8 @@ static int lbtf_init_adapter(struct lbtf_private *priv)
  	mutex_init(&priv->lock);
  
  	priv->vif = NULL;
@@ -1915,34 +1865,12 @@ index 088de9d..4f2147d 100644
  	setup_timer(&priv->command_timer, command_timer_fn,
  		(unsigned long)priv);
  
-@@ -233,6 +241,8 @@ static void lbtf_op_tx(struct ieee80211_hw *hw,
- {
- 	struct lbtf_private *priv = hw->priv;
- 
-+	lbtf_deb_enter(LBTF_DEB_TX);
-+
- 	priv->skb_to_tx = skb;
- 	queue_work(lbtf_wq, &priv->tx_work);
- 	/*
-@@ -240,6 +250,8 @@ static void lbtf_op_tx(struct ieee80211_hw *hw,
- 	 * there are no buffered multicast frames to send
- 	 */
- 	ieee80211_stop_queues(priv->hw);
-+
-+	lbtf_deb_leave(LBTF_DEB_TX);
- }
- 
- static void lbtf_tx_work(struct work_struct *work)
-@@ -254,9 +266,16 @@ static void lbtf_tx_work(struct work_struct *work)
+@@ -254,9 +261,12 @@ static void lbtf_tx_work(struct work_struct *work)
  
  	lbtf_deb_enter(LBTF_DEB_MACOPS | LBTF_DEB_TX);
  
 -	if ((priv->vif->type == NL80211_IFTYPE_AP) &&
 -	    (!skb_queue_empty(&priv->bc_ps_buf)))
-+// lbtf_deb_tx("priv: %p", priv);
-+// lbtf_deb_tx("priv->vif: %p", priv->vif);
-+// lbtf_deb_tx("&(priv->bc_ps_buf): %p", &priv->bc_ps_buf);
-+
 +	if (priv->vif &&
 +		 (priv->vif->type == NL80211_IFTYPE_AP) &&
 +		 (!skb_queue_empty(&priv->bc_ps_buf))) {
@@ -1952,7 +1880,7 @@ index 088de9d..4f2147d 100644
  	else if (priv->skb_to_tx) {
  		skb = priv->skb_to_tx;
  		priv->skb_to_tx = NULL;
-@@ -279,22 +298,28 @@ static void lbtf_tx_work(struct work_struct *work)
+@@ -279,22 +289,28 @@ static void lbtf_tx_work(struct work_struct *work)
  	/* Activate per-packet rate selection */
  	txpd->tx_control |= cpu_to_le32(MRVL_PER_PACKET_RATE |
  			     ieee80211_get_tx_rate(priv->hw, info)->hw_value);
@@ -1985,7 +1913,7 @@ index 088de9d..4f2147d 100644
  	}
  	lbtf_deb_leave(LBTF_DEB_MACOPS | LBTF_DEB_TX);
  }
-@@ -307,12 +332,24 @@ static int lbtf_op_start(struct ieee80211_hw *hw)
+@@ -307,12 +323,24 @@ static int lbtf_op_start(struct ieee80211_hw *hw)
  
  	lbtf_deb_enter(LBTF_DEB_MACOPS);
  
@@ -2013,7 +1941,7 @@ index 088de9d..4f2147d 100644
  	priv->capability = WLAN_CAPABILITY_SHORT_PREAMBLE;
  	priv->radioon = RADIO_ON;
  	priv->mac_control = CMD_ACT_MAC_RX_ON | CMD_ACT_MAC_TX_ON;
-@@ -326,12 +363,18 @@ static int lbtf_op_start(struct ieee80211_hw *hw)
+@@ -326,12 +354,18 @@ static int lbtf_op_start(struct ieee80211_hw *hw)
  		goto err_prog_firmware;
  	}
  
@@ -2034,7 +1962,7 @@ index 088de9d..4f2147d 100644
  	lbtf_deb_leave_args(LBTF_DEB_MACOPS, "error programing fw; ret=%d", ret);
  	return ret;
  }
-@@ -346,6 +389,8 @@ static void lbtf_op_stop(struct ieee80211_hw *hw)
+@@ -346,6 +380,8 @@ static void lbtf_op_stop(struct ieee80211_hw *hw)
  
  	lbtf_deb_enter(LBTF_DEB_MACOPS);
  
@@ -2043,7 +1971,7 @@ index 088de9d..4f2147d 100644
  	/* Flush pending command nodes */
  	spin_lock_irqsave(&priv->driver_lock, flags);
  	list_for_each_entry(cmdnode, &priv->cmdpendingq, list) {
-@@ -362,47 +407,129 @@ static void lbtf_op_stop(struct ieee80211_hw *hw)
+@@ -362,47 +398,128 @@ static void lbtf_op_stop(struct ieee80211_hw *hw)
  	priv->radioon = RADIO_OFF;
  	lbtf_set_radio_control(priv);
  
@@ -2052,7 +1980,6 @@ index 088de9d..4f2147d 100644
 +	}
 +
  	lbtf_deb_leave(LBTF_DEB_MACOPS);
-+	return;
  }
  
  static int lbtf_op_add_interface(struct ieee80211_hw *hw,
@@ -2184,7 +2111,7 @@ index 088de9d..4f2147d 100644
  	lbtf_deb_leave(LBTF_DEB_MACOPS);
  }
  
-@@ -427,6 +554,7 @@ static u64 lbtf_op_prepare_multicast(struct ieee80211_hw *hw,
+@@ -427,6 +544,7 @@ static u64 lbtf_op_prepare_multicast(struct ieee80211_hw *hw,
  	int i;
  	struct netdev_hw_addr *ha;
  	int mc_count = netdev_hw_addr_list_count(mc_list);
@@ -2192,7 +2119,7 @@ index 088de9d..4f2147d 100644
  
  	if (!mc_count || mc_count > MRVDRV_MAX_MULTICAST_LIST_SIZE)
  		return mc_count;
-@@ -436,6 +564,7 @@ static u64 lbtf_op_prepare_multicast(struct ieee80211_hw *hw,
+@@ -436,6 +554,7 @@ static u64 lbtf_op_prepare_multicast(struct ieee80211_hw *hw,
  	netdev_hw_addr_list_for_each(ha, mc_list)
  		memcpy(&priv->multicastlist[i++], ha->addr, ETH_ALEN);
  
@@ -2200,7 +2127,7 @@ index 088de9d..4f2147d 100644
  	return mc_count;
  }
  
-@@ -454,10 +583,13 @@ static void lbtf_op_configure_filter(struct ieee80211_hw *hw,
+@@ -454,10 +573,13 @@ static void lbtf_op_configure_filter(struct ieee80211_hw *hw,
  	*new_flags &= SUPPORTED_FIF_FLAGS;
  
  	if (!changed_flags) {
@@ -2214,7 +2141,7 @@ index 088de9d..4f2147d 100644
  	if (*new_flags & (FIF_PROMISC_IN_BSS))
  		priv->mac_control |= CMD_ACT_MAC_PROMISCUOUS_ENABLE;
  	else
-@@ -493,17 +625,29 @@ static void lbtf_op_bss_info_changed(struct ieee80211_hw *hw,
+@@ -493,17 +615,29 @@ static void lbtf_op_bss_info_changed(struct ieee80211_hw *hw,
  {
  	struct lbtf_private *priv = hw->priv;
  	struct sk_buff *beacon;
@@ -2230,8 +2157,8 @@ index 088de9d..4f2147d 100644
 +	}
 +
 +	lbtf_deb_macops("bss info changed: 0x%x", changes);
-+	if (changes & (BSS_CHANGED_BEACON | 
-+	               BSS_CHANGED_BEACON_INT | 
++	if (changes & (BSS_CHANGED_BEACON |
++	               BSS_CHANGED_BEACON_INT |
 +	               BSS_CHANGED_BEACON_ENABLED)) {
 +		switch (vif->type) {
  		case NL80211_IFTYPE_AP:
@@ -2247,11 +2174,11 @@ index 088de9d..4f2147d 100644
  						 bss_conf->beacon_int);
  			}
  			break;
-@@ -512,6 +656,21 @@ static void lbtf_op_bss_info_changed(struct ieee80211_hw *hw,
+@@ -512,6 +646,21 @@ static void lbtf_op_bss_info_changed(struct ieee80211_hw *hw,
  		}
  	}
  
-+	if (changes & (BSS_CHANGED_BEACON_INT | 
++	if (changes & (BSS_CHANGED_BEACON_INT |
 +	               BSS_CHANGED_BEACON_ENABLED)) {
 +		switch (vif->type) {
 +		case NL80211_IFTYPE_AP:
@@ -2269,7 +2196,7 @@ index 088de9d..4f2147d 100644
  	if (changes & BSS_CHANGED_BSSID) {
  		bool activate = !is_zero_ether_addr(bss_conf->bssid);
  		lbtf_set_bssid(priv, activate, bss_conf->bssid);
-@@ -600,7 +743,7 @@ int lbtf_rx(struct lbtf_private *priv, struct sk_buff *skb)
+@@ -600,7 +749,7 @@ int lbtf_rx(struct lbtf_private *priv, struct sk_buff *skb)
  
  	lbtf_deb_rx("rx data: skb->len-sizeof(RxPd) = %d-%zd = %zd\n",
  	       skb->len, sizeof(struct rxpd), skb->len - sizeof(struct rxpd));
@@ -2278,7 +2205,7 @@ index 088de9d..4f2147d 100644
  	             min_t(unsigned int, skb->len, 100));
  
  	ieee80211_rx_irqsafe(priv->hw, skb);
-@@ -617,7 +760,7 @@ EXPORT_SYMBOL_GPL(lbtf_rx);
+@@ -617,7 +766,7 @@ EXPORT_SYMBOL_GPL(lbtf_rx);
   *
   *  Returns: pointer to struct lbtf_priv.
   */
@@ -2287,15 +2214,7 @@ index 088de9d..4f2147d 100644
  {
  	struct ieee80211_hw *hw;
  	struct lbtf_private *priv = NULL;
-@@ -635,6 +778,7 @@ struct lbtf_private *lbtf_add_card(void *card, struct device *dmdev)
- 	priv->hw = hw;
- 	priv->card = card;
- 	priv->tx_skb = NULL;
-+	priv->tx_skb_old = NULL;
- 
- 	hw->queues = 1;
- 	hw->flags = IEEE80211_HW_HOST_BROADCAST_PS_BUFFERING;
-@@ -648,13 +792,21 @@ struct lbtf_private *lbtf_add_card(void *card, struct device *dmdev)
+@@ -648,13 +797,21 @@ struct lbtf_private *lbtf_add_card(void *card, struct device *dmdev)
  	hw->wiphy->bands[IEEE80211_BAND_2GHZ] = &priv->band;
  	hw->wiphy->interface_modes =
  		BIT(NL80211_IFTYPE_STATION) |
@@ -2318,7 +2237,7 @@ index 088de9d..4f2147d 100644
  	if (ieee80211_register_hw(hw))
  		goto err_init_adapter;
  
-@@ -671,13 +823,20 @@ done:
+@@ -671,13 +828,20 @@ done:
  }
  EXPORT_SYMBOL_GPL(lbtf_add_card);
  
@@ -2340,7 +2259,7 @@ index 088de9d..4f2147d 100644
  	priv->surpriseremoved = 1;
  	del_timer(&priv->command_timer);
  	lbtf_free_adapter(priv);
-@@ -692,40 +851,105 @@ EXPORT_SYMBOL_GPL(lbtf_remove_card);
+@@ -692,40 +856,100 @@ EXPORT_SYMBOL_GPL(lbtf_remove_card);
  
  void lbtf_send_tx_feedback(struct lbtf_private *priv, u8 retrycnt, u8 fail)
  {
@@ -2352,7 +2271,7 @@ index 088de9d..4f2147d 100644
 +	if (!skb_queue_empty(&priv->tx_skb_buf)) {
 +		skb = skb_dequeue(&priv->tx_skb_buf);
 +	}
-+	
++
 +	if(skb == 0) {
 +		lbtf_deb_stats("skb is null");
 +	} else {
@@ -2399,11 +2318,6 @@ index 088de9d..4f2147d 100644
 +{
 +	lbtf_deb_enter(LBTF_DEB_MAIN);
 +
-+// 	lbtf_deb_main("priv: %p", priv);
-+// 	lbtf_deb_main("priv->hw: %p", priv->hw);
-+// 	lbtf_deb_main("priv->tx_skb: %p", priv->tx_skb);
-+// 	lbtf_deb_main("priv->skb_to_tx: %p", priv->skb_to_tx);
-+
 +	if (priv->tx_skb) {
 +		lbtf_deb_main("Got done on packet.");
 +	} else {
@@ -2430,10 +2344,10 @@ index 088de9d..4f2147d 100644
  {
  	struct sk_buff *skb = NULL;
 +	struct ieee80211_vif ** priv_vif = NULL;
++
++	lbtf_deb_enter(LBTF_DEB_MAIN);
  
 -	if (priv->vif->type != NL80211_IFTYPE_AP)
-+	lbtf_deb_enter(LBTF_DEB_MAIN);
-+
 +	if (!priv) {
 +		lbtf_deb_main("got bcn sent with priv == NULL");
 +		return;
@@ -2471,10 +2385,9 @@ index 088de9d..4f2147d 100644
 +	skb = ieee80211_beacon_get(priv->hw, (*priv_vif));
  
  	if (skb) {
--		lbtf_beacon_set(priv, skb);
-+ 		lbtf_beacon_set(priv, skb);
+ 		lbtf_beacon_set(priv, skb);
  		kfree_skb(skb);
-+ 		lbtf_beacon_ctrl(priv, priv->beacon_enable, priv->beacon_int);
++		lbtf_beacon_ctrl(priv, priv->beacon_enable, priv->beacon_int);
  	}
 +
 +	lbtf_deb_leave(LBTF_DEB_MAIN);
