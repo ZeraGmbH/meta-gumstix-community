@@ -12,10 +12,11 @@ U-Boot environment variables used often (for further see linux Documentation/ker
   Description: expected MAC address
   setenv ethaddr <MAC-address>
 
+* latest u-boot
+  setenv bootcmd 'mmc dev ${mmcdev}; if mmc rescan; then if run loadbootscript; then run bootscript; else if run loaduimage; then run mmcboot; else run nandboot; fi; fi; else run nandboot; fi'
+
 
 * videosettings:
-  * latest u-boot
-  setenv bootcmd 'mmc dev ${mmcdev}; if mmc rescan; then if run loadbootscript; then run bootscript; else if run loaduimage; then run mmcboot; else run nandboot; fi; fi; else run nandboot; fi'
   * dvi:
   setenv defaultdisplay dvi
   setenv nandargs 'setenv bootargs console=${console} ${optargs} mpurate=${mpurate} vram=${vram} omapfb.mode=dvi:${dvimode} omapdss.def_disp=${defaultdisplay} root=${nandroot} rootfstype=${nandrootfstype}'
@@ -28,8 +29,14 @@ U-Boot environment variables used often (for further see linux Documentation/ker
   setenv mmcargs 'setenv bootargs console=${console} ${optargs} mpurate=${mpurate} vram=${vram} omapfb.mode=lcd43:${dvimode} omapdss.def_disp=${defaultdisplay} root=${mmcroot} rootfstype=${mmcrootfstype}'
   setenv dvimode 480x272MR-24@60
 
+* drm
+  setenv mmcargs 'setenv bootargs console=${console} ${optargs} mpurate=${mpurate} vram=${vram} video=DVI-D-1:${dvimode} drm.debug=7 omapdss.debug=7 omapdss.def_disp=${defaultdisplay} root=${mmcroot} rootfstype=${mmcrootfstype}'
+
 * screensaver off (consoleblank):
   setenv console ttyO2,115200n8 consoleblank=0
+
+* no kernel console out (speed up boot)
+  setenv console ttyO2,115200n8 quiet
 
 * forward all systemd output to console
   setenv console ttyO2,115200n8 systemd.journald.forward_to_console=1
@@ -37,6 +44,3 @@ U-Boot environment variables used often (for further see linux Documentation/ker
 * zImage
   setenv loaduimage fatload mmc ${mmcdev} ${loadaddr} zImage
   setenv mmcboot 'echo Booting from mmc ...; run mmcargs; bootz ${loadaddr}'
-
-* drm
-  setenv mmcargs 'setenv bootargs console=${console} ${optargs} mpurate=${mpurate} vram=${vram} video=DVI-D-1:${dvimode} drm.debug=7 omapdss.debug=7 omapdss.def_disp=${defaultdisplay} root=${mmcroot} rootfstype=${mmcrootfstype}'
