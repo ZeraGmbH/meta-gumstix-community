@@ -8,6 +8,6 @@
 	power off: 
 		fails with -38
 * omap_fb:
-	1. recipe to enable: echo 'install omapdrm /sbin/modprobe omapfb' > /etc/modprobe.d/omap
+	1. recipe to enable: echo 'install omapdrm /sbin/modprobe omapfb' > /etc/modprobe.d/omapfb.conf
 	2. works only on very cold boot (power up)
 
