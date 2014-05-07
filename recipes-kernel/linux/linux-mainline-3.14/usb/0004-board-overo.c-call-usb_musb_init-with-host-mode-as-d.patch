@@ -1,0 +1,50 @@
+From 0e7f3efa30f8a2bf3965518d32e1f744dcbefce1 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Fri, 18 Apr 2014 14:01:43 +0200
+Subject: [PATCH]  board-overo.c: call usb_musb_init with host mode as default
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ arch/arm/mach-omap2/board-overo.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
+
+diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo.c
+index 538c0aa..4b6f4ab 100644
+--- a/arch/arm/mach-omap2/board-overo.c
++++ b/arch/arm/mach-omap2/board-overo.c
+@@ -40,6 +40,7 @@
+ #include <linux/mtd/partitions.h>
+ #include <linux/mmc/host.h>
+ #include <linux/usb/phy.h>
++#include <linux/usb/musb.h>
+ 
+ #include <linux/platform_data/mtd-nand-omap2.h>
+ #include <linux/platform_data/spi-omap2-mcspi.h>
+@@ -680,6 +681,12 @@ static struct regulator_consumer_supply dummy_supplies[] = {
+ 	REGULATOR_SUPPLY("vdd33a", "smsc911x.1"),
+ };
+ 
++static struct omap_musb_board_data musb_board_data = {
++	.interface_type	= MUSB_INTERFACE_ULPI,
++	.mode			= MUSB_HOST,
++	.power			= 100,
++};
++
+ static void __init overo_init(void)
+ {
+ 	int ret;
+@@ -703,7 +710,7 @@ static void __init overo_init(void)
+ 	board_nand_init(overo_nand_partitions,
+ 			ARRAY_SIZE(overo_nand_partitions), NAND_CS, 0, NULL);
+ 	usb_bind_phy("musb-hdrc.0", 0, "twl4030_usb");
+-	usb_musb_init(NULL);
++	usb_musb_init(&musb_board_data);
+ 
+ 	usbhs_init_phys(phy_data, ARRAY_SIZE(phy_data));
+ 	usbhs_init(&usbhs_bdata);
+-- 
+1.8.3.1
+

@@ -1,0 +1,53 @@
+From ec7175955d1a38346f9acd1f86b9c4593dac76ef Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Fri, 18 Apr 2014 16:06:46 +0200
+Subject: [PATCH] board-overo.c: rework overo_display_init and give a bit mor
+ information
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ arch/arm/mach-omap2/board-overo.c | 25 ++++++++++++++++++-------
+ 1 file changed, 18 insertions(+), 7 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo.c
+index 4b6f4ab..70d7603 100644
+--- a/arch/arm/mach-omap2/board-overo.c
++++ b/arch/arm/mach-omap2/board-overo.c
+@@ -356,13 +356,24 @@ static struct omap_dss_board_info overo_dss_data = {
+ 
+ static void __init overo_display_init(void)
+ {
+-	omap_display_init(&overo_dss_data);
+-
+-	if (!overo_use_lcd35)
+-		platform_device_register(&overo_lcd43_device);
+-	platform_device_register(&overo_tfp410_device);
+-	platform_device_register(&overo_dvi_connector_device);
+-	platform_device_register(&overo_tv_connector_device);
++	int ret;
++	if (!overo_use_lcd35) {
++		ret = platform_device_register(&overo_lcd43_device);
++		if (ret)
++			pr_err("error registering overo_lcd43_device: %d\n", ret);
++	}
++	ret = platform_device_register(&overo_tfp410_device);
++	if (ret)
++		pr_err("error registering overo_tfp410_device: %d\n", ret);
++	ret = platform_device_register(&overo_dvi_connector_device);
++	if (ret)
++		pr_err("error registering overo_dvi_connector_device: %d\n", ret);
++	ret = platform_device_register(&overo_tv_connector_device);
++	if (ret)
++		pr_err("error registering overo_tv_connector_device: %d\n", ret);
++	ret = omap_display_init(&overo_dss_data);
++	if (ret)
++		pr_err("omap_display_init failed with: %d\n", ret);
+ }
+ 
+ static struct mtd_partition overo_nand_partitions[] = {
+-- 
+1.8.3.1
+

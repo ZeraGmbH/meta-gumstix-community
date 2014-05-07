@@ -1,0 +1,17 @@
+* xf86-video-modesetting (not a kernel issue)
+* otg
+* libertas:
+	* only if both libertas_tf_sdio and libertas_sdio are available:
+	  selection recipe libertas_sdio/libertas_tf_sdio:
+	  echo 'blacklist libertas_sdio' > /etc/modprobe.d/libertas.conf
+	* libertas_sdio suspend fails: 'Device mmc1:0001 failed to suspend: error -38'
+	* libertas_tf_sdio resume fails but is catched by new MMC detection
+* omapfb:
+	1. recipe to enable: echo 'install omapdrm /sbin/modprobe omapfb' > /etc/modprobe.d/omapfb.conf
+	2. (600MHz??)works only on very cold boot (power up)
+* omapdrm:
+	Find a way to force display if monitor does not have I2c (or on very old tobi)
+
+* 600MHz overo only: 'omap_hwmod: ssi: doesn't have mpu register target base'
+
+* nand ecc

@@ -1,0 +1,253 @@
+From 30e9b3ec5466246cb4bcf2e27f30d321fcc6b97f Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Tue, 18 Mar 2014 18:03:16 +0100
+Subject: [PATCH] Add opp init and enable higher frequencies
+
+* additional display frequency in case omap2_set_init_voltage fails
+* 720MHz part based on Sakomans's kernel 3.5 [1]
+
+[1] http://git.sakoman.com/git/gitweb.cgi?p=linux.git;a=commit;h=e28143a2ef859e4aefb42535175ec6c480cedb7f
+
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ arch/arm/mach-omap2/control.h      |  7 +++++
+ arch/arm/mach-omap2/id.c           |  9 ++++++
+ arch/arm/mach-omap2/board-overo.c  |   5 +
+ arch/arm/mach-omap2/opp3xxx_data.c | 65 +++++++++++++++++++++++++++++++++++---
+ arch/arm/mach-omap2/pm.c           |   4 +-
+ arch/arm/mach-omap2/soc.h          |  2 ++
+ 4 files changed, 195 insertions(+), 11 deletions(-)
+
+diff --git a/arch/arm/mach-omap2/control.h b/arch/arm/mach-omap2/control.h
+index e6c3281..1eb26cf 100644
+--- a/arch/arm/mach-omap2/control.h
++++ b/arch/arm/mach-omap2/control.h
+@@ -389,6 +389,13 @@
+ #define		FEAT_NEON		0
+ #define		FEAT_NEON_NONE		1
+ 
++/*
++ * Product ID register
++ */
++#define OMAP3_PRODID			0x020C
++
++#define OMAP3_SKUID_MASK		0x0f
++#define		OMAP3_SKUID_720MHZ	0x08
+ 
+ #ifndef __ASSEMBLY__
+ #ifdef CONFIG_ARCH_OMAP2PLUS
+diff --git a/arch/arm/mach-omap2/id.c b/arch/arm/mach-omap2/id.c
+index 45cc7ed4..7ff5e48 100644
+--- a/arch/arm/mach-omap2/id.c
++++ b/arch/arm/mach-omap2/id.c
+@@ -220,6 +220,7 @@ static void __init omap3_cpuinfo(void)
+ 	OMAP3_SHOW_FEATURE(neon);
+ 	OMAP3_SHOW_FEATURE(isp);
+ 	OMAP3_SHOW_FEATURE(192mhz_clk);
++	OMAP3_SHOW_FEATURE(720mhz);
+ 
+ 	printk(")\n");
+ }
+@@ -269,6 +270,14 @@ void __init omap3xxx_check_features(void)
+ 	 *       e.g. Size of L2 cache.
+ 	 */
+ 
++	/*
++	 * Does it support 720MHz?
++	 */
++	status = (OMAP3_SKUID_MASK & read_tap_reg(OMAP3_PRODID));
++
++	if (status & OMAP3_SKUID_720MHZ) {
++		omap_features |= OMAP3_HAS_720MHZ;
++	}
+ 	omap3_cpuinfo();
+ }
+ 
+diff --git a/arch/arm/mach-omap2/board-overo.c b/arch/arm/mach-omap2/board-overo.c
+index 5748b5d..e75e757 100644
+--- a/arch/arm/mach-omap2/board-overo.c
++++ b/arch/arm/mach-omap2/board-overo.c
+@@ -26,6 +26,8 @@
+ #include <linux/io.h>
+ #include <linux/gpio.h>
+ #include <linux/kernel.h>
++#include <linux/pm_opp.h>
++#include <linux/cpu.h>
+ #include <linux/platform_device.h>
+ #include <linux/i2c/twl.h>
+ #include <linux/regulator/machine.h>
+@@ -56,6 +57,9 @@
+ #include "hsmmc.h"
+ #include "board-flash.h"
+ #include "common-board-devices.h"
++#include "omap_device.h"
++#include "pm.h"
++#include "soc.h"
+ 
+ #define	NAND_CS			0
+ 
+diff --git a/arch/arm/mach-omap2/opp3xxx_data.c b/arch/arm/mach-omap2/opp3xxx_data.c
+index fc67add..ac4579a 100644
+--- a/arch/arm/mach-omap2/opp3xxx_data.c
++++ b/arch/arm/mach-omap2/opp3xxx_data.c
+@@ -18,11 +18,14 @@
+  * GNU General Public License for more details.
+  */
+ #include <linux/module.h>
++#include <linux/pm_opp.h>
++#include <linux/cpu.h>
+ 
+ #include "soc.h"
+ #include "control.h"
+ #include "omap_opp_data.h"
+ #include "pm.h"
++#include "omap_device.h"
+ 
+ /* 34xx */
+ 
+@@ -97,6 +100,8 @@ static struct omap_opp_def __initdata omap34xx_opp_def_list[] = {
+ 	OPP_INITIALIZER("mpu", true, 550000000, OMAP3430_VDD_MPU_OPP4_UV),
+ 	/* MPU OPP5 */
+ 	OPP_INITIALIZER("mpu", true, 600000000, OMAP3430_VDD_MPU_OPP5_UV),
++	/* MPU OPP6 */
++	OPP_INITIALIZER("mpu", false, 720000000, 1350000),
+ 
+ 	/*
+ 	 * L3 OPP1 - 41.5 MHz is disabled because: The voltage for that OPP is
+@@ -122,6 +127,8 @@ static struct omap_opp_def __initdata omap34xx_opp_def_list[] = {
+ 	OPP_INITIALIZER("iva", true, 400000000, OMAP3430_VDD_MPU_OPP4_UV),
+ 	/* DSP OPP5 */
+ 	OPP_INITIALIZER("iva", true, 430000000, OMAP3430_VDD_MPU_OPP5_UV),
++	/* DSP OPP6 */
++	OPP_INITIALIZER("iva", false, 520000000, 1350000),
+ };
+ 
+ static struct omap_opp_def __initdata omap36xx_opp_def_list[] = {
+@@ -130,9 +137,9 @@ static struct omap_opp_def __initdata omap36xx_opp_def_list[] = {
+ 	/* MPU OPP2 - OPP100 */
+ 	OPP_INITIALIZER("mpu", true,  600000000, OMAP3630_VDD_MPU_OPP100_UV),
+ 	/* MPU OPP3 - OPP-Turbo */
+-	OPP_INITIALIZER("mpu", false, 800000000, OMAP3630_VDD_MPU_OPP120_UV),
++	OPP_INITIALIZER("mpu", true,  800000000, OMAP3630_VDD_MPU_OPP120_UV),
+ 	/* MPU OPP4 - OPP-SB */
+-	OPP_INITIALIZER("mpu", false, 1000000000, OMAP3630_VDD_MPU_OPP1G_UV),
++	OPP_INITIALIZER("mpu", true, 1000000000, OMAP3630_VDD_MPU_OPP1G_UV),
+ 
+ 	/* L3 OPP1 - OPP50 */
+ 	OPP_INITIALIZER("l3_main", true, 100000000, OMAP3630_VDD_CORE_OPP50_UV),
+@@ -144,11 +151,55 @@ static struct omap_opp_def __initdata omap36xx_opp_def_list[] = {
+ 	/* DSP OPP2 - OPP100 */
+ 	OPP_INITIALIZER("iva", true,  520000000, OMAP3630_VDD_MPU_OPP100_UV),
+ 	/* DSP OPP3 - OPP-Turbo */
+-	OPP_INITIALIZER("iva", false, 660000000, OMAP3630_VDD_MPU_OPP120_UV),
++	OPP_INITIALIZER("iva", true, 660000000, OMAP3630_VDD_MPU_OPP120_UV),
+ 	/* DSP OPP4 - OPP-SB */
+-	OPP_INITIALIZER("iva", false, 800000000, OMAP3630_VDD_MPU_OPP1G_UV),
++	OPP_INITIALIZER("iva", true, 800000000, OMAP3630_VDD_MPU_OPP1G_UV),
+ };
+ 
++
++/**
++ * omap3_opp_enable_720Mhz() - Enable the OPP corresponding to 720MHz
++ *
++ * This function would be executed only if the silicon is capable of
++ * running at the 720MHz.
++ */
++static int __init omap3_opp_enable_720Mhz(void)
++{
++       int r = -ENODEV;
++       struct device *mpu_dev, *iva_dev;
++       mpu_dev = get_cpu_device(0);
++
++       if (!mpu_dev) {
++               goto err;
++       } else {
++               r = dev_pm_opp_enable(mpu_dev, 720000000);
++               if (r < 0) {
++                       pr_err("dev_pm_opp_enable() failed for mpu@720MHz");
++                       goto err;
++               }
++       }
++
++       if (omap3_has_iva()) {
++               iva_dev = omap_device_get_by_hwmod_name("iva");
++
++               if (!iva_dev) {
++                       r = -ENODEV;
++                       goto err;
++               } else {
++                       r = dev_pm_opp_enable(iva_dev, 520000000);
++                       if (r < 0) {
++                               pr_err("dev_pm_opp_enable() failed for iva@520MHz");
++                               goto err;
++                       }
++               }
++       }
++
++       pr_info("Enabled OPP corresponding to 720MHz\n");
++
++err:
++       return r;
++}
++
+ /**
+  * omap3_opp_init() - initialize omap3 opp table
+  */
+@@ -162,10 +213,14 @@ int __init omap3_opp_init(void)
+ 	if (cpu_is_omap3630())
+ 		r = omap_init_opp_table(omap36xx_opp_def_list,
+ 			ARRAY_SIZE(omap36xx_opp_def_list));
+-	else
++	else {
+ 		r = omap_init_opp_table(omap34xx_opp_def_list,
+ 			ARRAY_SIZE(omap34xx_opp_def_list));
+ 
++		if (omap3_has_720mhz())
++			r = omap3_opp_enable_720Mhz();
++	}
++
+ 	return r;
+ }
+ omap_device_initcall(omap3_opp_init);
+diff --git a/arch/arm/mach-omap2/pm.c b/arch/arm/mach-omap2/pm.c
+index e742118..1a5cf9a 100644
+--- a/arch/arm/mach-omap2/pm.c
++++ b/arch/arm/mach-omap2/pm.c
+@@ -175,8 +175,8 @@ static int __init omap2_set_init_voltage(char *vdd_name, char *clk_name,
+ 	opp = opp_find_freq_ceil(dev, &freq);
+ 	if (IS_ERR(opp)) {
+ 		rcu_read_unlock();
+-		pr_err("%s: unable to find boot up OPP for vdd_%s\n",
+-			__func__, vdd_name);
++		pr_err("%s: unable to find boot up OPP for vdd_%s / frequency %u\n",
++			__func__, vdd_name, freq);
+ 		goto exit;
+ 	}
+ 
+diff --git a/arch/arm/mach-omap2/soc.h b/arch/arm/mach-omap2/soc.h
+index f31d907..850e3c1 100644
+--- a/arch/arm/mach-omap2/soc.h
++++ b/arch/arm/mach-omap2/soc.h
+@@ -436,6 +436,7 @@ extern u32 omap_features;
+ #define OMAP3_HAS_SDRC			BIT(7)
+ #define OMAP3_HAS_IO_CHAIN_CTRL		BIT(8)
+ #define OMAP4_HAS_PERF_SILICON		BIT(9)
++#define OMAP3_HAS_720MHZ		BIT(10)
+ 
+ 
+ #define OMAP3_HAS_FEATURE(feat,flag)			\
+@@ -453,6 +454,7 @@ OMAP3_HAS_FEATURE(192mhz_clk, 192MHZ_CLK)
+ OMAP3_HAS_FEATURE(io_wakeup, IO_WAKEUP)
+ OMAP3_HAS_FEATURE(sdrc, SDRC)
+ OMAP3_HAS_FEATURE(io_chain_ctrl, IO_CHAIN_CTRL)
++OMAP3_HAS_FEATURE(720mhz, 720MHZ)
+ 
+ /*
+  * Runtime detection of OMAP4 features
+-- 
+1.8.3.1
+

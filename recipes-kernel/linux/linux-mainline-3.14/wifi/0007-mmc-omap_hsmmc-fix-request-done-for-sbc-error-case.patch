@@ -1,0 +1,31 @@
+From d4b2c375fc7d6fe56bbc438ffe3060f87f22cdb7 Mon Sep 17 00:00:00 2001
+From: Balaji T K <balajitk@ti.com>
+Date: Tue, 21 Jan 2014 19:54:42 +0530
+Subject: [PATCH 2/5] mmc: omap_hsmmc: fix request done for sbc error case
+
+mrq is not populated for set block count(cmd23) command.
+Use block read/write mmc_commond pointer for request done and
+avoid NULL pointer access in error case for sbc (cmd23).
+
+Signed-off-by: Balaji T K <balajitk@ti.com>
+Signed-off-by: Chris Ball <chris@printf.net>
+---
+ drivers/mmc/host/omap_hsmmc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/mmc/host/omap_hsmmc.c b/drivers/mmc/host/omap_hsmmc.c
+index 6cb4e19..40914f5 100644
+--- a/drivers/mmc/host/omap_hsmmc.c
++++ b/drivers/mmc/host/omap_hsmmc.c
+@@ -916,7 +916,7 @@ omap_hsmmc_cmd_done(struct omap_hsmmc_host *host, struct mmc_command *cmd)
+ 		}
+ 	}
+ 	if ((host->data == NULL && !host->response_busy) || cmd->error)
+-		omap_hsmmc_request_done(host, cmd->mrq);
++		omap_hsmmc_request_done(host, host->mrq);
+ }
+ 
+ /*
+-- 
+1.8.3.1
+
