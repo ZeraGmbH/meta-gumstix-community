@@ -33,6 +33,7 @@ SRC_URI = " \
     \
     file://dss/0001-DSS2-use-DSI-PLL-for-DPI-with-OMAP3.patch \
     file://dss/0002-board-overo.c-rework-overo_display_init-and-give-a-b.patch \
+    file://dss/0003-OMAPDSS-Fix-DSS-clock-multiplier-issue-on-3703-and-probably-3630.patch \
     \
     file://nand/0001-mtd-nand-omap2-Fix-device-detection-path.patch \
     \

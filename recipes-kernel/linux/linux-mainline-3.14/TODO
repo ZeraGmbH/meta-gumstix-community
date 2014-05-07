@@ -7,8 +7,7 @@
 	* libertas_sdio suspend fails: 'Device mmc1:0001 failed to suspend: error -38'
 	* libertas_tf_sdio resume fails but is catched by new MMC detection
 * omapfb:
-	1. recipe to enable: echo 'install omapdrm /sbin/modprobe omapfb' > /etc/modprobe.d/omapfb.conf
-	2. (600MHz??)works only on very cold boot (power up)
+	recipe to enable: echo 'install omapdrm /sbin/modprobe omapfb' > /etc/modprobe.d/omapfb.conf
 * omapdrm:
 	Find a way to force display if monitor does not have I2c (or on very old tobi)
 
