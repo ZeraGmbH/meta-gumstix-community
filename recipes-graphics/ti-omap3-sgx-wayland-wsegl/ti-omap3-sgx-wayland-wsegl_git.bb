@@ -4,16 +4,12 @@ LIC_FILES_CHKSUM = "file://LICENSE;md5=86515e83f3ce1048848e1122b9b1ef9c \
                     file://LICENSE.LGPL;md5=24a4036de5c39ff01ad4986c4870d8c0"
 
 SRC_URI = " \
-	git://github.com/nemomobile/ti-omap3-sgx-wayland-wsegl.git;protocol=git;branch=master \
+	git://github.com/schnitzeltony/ti-omap3-sgx-wayland-wsegl.git;protocol=git;branch=master \
 	file://0001-load-libEGL-sgx.so-in-libdir-by-default.patch \
-	file://0002-updates-for-1.10-Linux-DDK.patch \
-	file://0003-waylandwsegl-do-manual-update-only-for-devices-suppo.patch \
-	file://0004-waylandwsegl-do-not-pin-numFlipBuffers-to-zero.patch \
-	file://0005-WIP.patch \
 	file://wayland-egl.pc.in \
 	file://egl.pc.in \
 "
-SRCREV = "5c56c8f809f1e08e5b774e3b728efd3d0a756dd3"
+SRCREV = "da8da5f1c113e1ad534598f38e132b35ad684d2b"
 PV = "0.1.3+git${SRCPV}"
 
 S = "${WORKDIR}/git"
