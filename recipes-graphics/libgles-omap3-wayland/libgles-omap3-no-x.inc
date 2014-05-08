@@ -202,7 +202,7 @@ FILES_${PN}-dbg = "${libdir}/.debug/* ${bindir}/.debug/* \
                    ${libdir}/ES*/.debug ${bindir}/*/.debug\
 "
 
-RDEPENDS_${PN} = "omap3-sgx-modules ti-omap3-sgx-wayland-wsegl fbset devmem2"
+RDEPENDS_${PN} = "ti-sdk-pvr ti-omap3-sgx-wayland-wsegl fbset devmem2"
 
 #HACK! These are binaries, so we can't guarantee that LDFLAGS match :(
 INSANE_SKIP_${PN} = "ldflags dev-so already-stripped"
