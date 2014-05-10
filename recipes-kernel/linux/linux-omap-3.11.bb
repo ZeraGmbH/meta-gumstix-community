@@ -6,7 +6,7 @@ DESCRIPTION = "Linux kernel for gumstix overo"
 
 SRCREV_overo = "6e4664525b1db28f8c4e1130957f70a94c19213e"
 
-FILESPATH =. "${FILE_DIRNAME}/splash:"
+FILESEXTRAPATHS_prepend = "${FILE_DIRNAME}/splash:"
 OVERO_BOOT_SPLASH ??= "file://logo_linux_clut224.ppm"
 
 S = "${WORKDIR}/git"
@@ -16,7 +16,7 @@ KERNEL_EXTRA_ARGS += "LOADADDR=${UBOOT_ENTRYPOINT}"
 
 PV = "3.11.0"
 
-FILESPATH =. "${FILE_DIRNAME}/linux-omap-3.11:${FILE_DIRNAME}/linux-omap-3.11/${MACHINE}:"
+FILESEXTRAPATHS_prepend = "${FILE_DIRNAME}/linux-omap-3.11:${FILE_DIRNAME}/linux-omap-3.11/${MACHINE}:"
 
 SRC_URI = " \
     git://git.kernel.org/pub/scm/linux/kernel/git/tmlind/linux-omap.git;branch=master;protocol=git \
