@@ -6,7 +6,7 @@ DESCRIPTION = "Linux kernel for gumstix overo"
 
 SRCREV_overo = "774e1e67ef51e643e0415baddcbd26f4d44e3270"
 
-FILESPATH =. "${FILE_DIRNAME}/splash:"
+FILESEXTRAPATHS_prepend = "${FILE_DIRNAME}/splash:"
 OVERO_BOOT_SPLASH ??= "file://logo_linux_clut224.ppm"
 
 S = "${WORKDIR}/git"
@@ -16,7 +16,7 @@ KERNEL_EXTRA_ARGS += "LOADADDR=${UBOOT_ENTRYPOINT}"
 
 PV = "3.14.3"
 
-FILESPATH =. "${FILE_DIRNAME}/linux-mainline-3.14:${FILE_DIRNAME}/linux-mainline-3.14/${MACHINE}:"
+FILESEXTRAPATHS_prepend = "${FILE_DIRNAME}/linux-mainline-3.14:${FILE_DIRNAME}/linux-mainline-3.14/${MACHINE}:"
 
 SRC_URI = " \
     git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git;branch=linux-3.14.y;protocol=git \
