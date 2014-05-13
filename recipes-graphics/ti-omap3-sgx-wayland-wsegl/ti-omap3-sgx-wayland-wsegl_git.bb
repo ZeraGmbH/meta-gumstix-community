@@ -16,7 +16,9 @@ S = "${WORKDIR}/git"
 
 inherit qmake5
 
-DEPENDS = "libgles-omap3-wayland wayland"
+REQUIRED_DISTRO_FEATURES = "wayland"
+
+DEPENDS = "gles-omap3 wayland"
 # mesa builds wayland-egl and gbm - to make recipes happy requiring both we depend on gbm
 # as we do not provide both
 DEPENDS += "libgbm"
@@ -54,4 +56,4 @@ FILES_${PN}-dev = "${libdir}/pkgconfig ${libdir}/libwayland-egl.so"
 INSANE_SKIP_${PN} = "dev-so"
 
 # we don't link statically
-RDEPENDS_${PN} += "libgles-omap3-wayland"
+RDEPENDS_${PN} += "gles-omap3"

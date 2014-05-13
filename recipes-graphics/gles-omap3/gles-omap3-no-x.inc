@@ -6,17 +6,17 @@ LIC_FILES_CHKSUM = "file://TSPA.txt;md5=c0d5d9c1e38b41677144c4e24d6ddee1"
 EXCLUDE_FROM_WORLD = "1"
 
 COMPATIBLE_MACHINE = "(omap3|ti814x|ti816x|ti33x|ti43x)"
-REQUIRED_DISTRO_FEATURES = "wayland"
 
 PVR_INIT ?= "pvrsrvctl"
 
 PROVIDES += "virtual/libgles1 virtual/libgles2"
+PROVIDES += "${@base_contains('DISTRO_FEATURES', 'wayland', 'virtual/libgl', '', d)}"
 
 S = "${WORKDIR}/OMAP35x_Graphics_SDK_${SGXPV}"
 
 # Logic to unpack installjammer file
 TI_BIN_UNPK_CMDS="Y: qY:workdir:Y"
-require recipes-ti/includes/ti-eula-unpack.inc
+require ti-eula-unpack.inc
 
 export BINLOCATION ?= "${S}/gfx_rel"
 export ES3_0_LOCATION ?= "${S}/gfx_rel_es3.x"
@@ -31,11 +31,12 @@ do_configure() {
 		chmod 0644 $i
 	done
 
-	# rename EGL libraries so that ti-omap-sgx-wayland-wsegl can load it
-	for egllib in $(find ${S} -name 'libEGL.*') ; do
-		mv $egllib $(echo $egllib | sed 's:libEGL.:libEGL-sgx.:')
-	done
-
+	if ${@base_contains('DISTRO_FEATURES', 'wayland', 'true', 'false', d)}; then
+		# rename EGL libraries so that ti-omap-sgx-wayland-wsegl can find and load it
+		for egllib in $(find ${S} -name 'libEGL.*') ; do
+			mv $egllib $(echo $egllib | sed 's:libEGL.:libEGL-sgx.:')
+		done
+	fi
 	# Attempt to create proper library softlinks
 	for sofile in $(find ${S} -name "lib*Open*.so") $(find ${S} -name "lib*srv*.so") $(find ${S} -name "lib*gl*.so") $(find ${S} -name "libpvr*.so") $(find ${S} -name "lib*GL*.so"); do
 		if [ "$(readlink -n ${sofile})" = "" ] ; then
@@ -202,7 +203,7 @@ FILES_${PN}-dbg = "${libdir}/.debug/* ${bindir}/.debug/* \
                    ${libdir}/ES*/.debug ${bindir}/*/.debug\
 "
 
-RDEPENDS_${PN} = "ti-sdk-pvr ti-omap3-sgx-wayland-wsegl fbset devmem2"
+RDEPENDS_${PN} = "ti-sdk-pvr ${@base_contains('DISTRO_FEATURES', 'wayland', 'ti-omap3-sgx-wayland-wsegl', '', d)} fbset devmem2"
 
 #HACK! These are binaries, so we can't guarantee that LDFLAGS match :(
 INSANE_SKIP_${PN} = "ldflags dev-so already-stripped"
