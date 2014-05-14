@@ -3,7 +3,8 @@ LICENSE = "MIT"
 LIC_FILES_CHKSUM = "file://MIT-COPYING;md5=8c2810fa6bfdc5ae5c15a0c1ade34054"
 
 SRC_URI = "git://github.com/schnitzeltony/ti-sdk-pvr.git;protocol=git;branch=master"
-SRCREV = "4281b0db20fae25010d239cb3ea671f9005731ed"
+SRCREV = "08f7e8aa7160946930c43d29de6798035596b10c"
+PV = "5.01.01.01+git${SRCPV}"
 S = "${WORKDIR}/git/Graphics_SDK/GFX_Linux_KM/"
 
 inherit module
