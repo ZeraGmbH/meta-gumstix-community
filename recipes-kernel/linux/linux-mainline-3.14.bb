@@ -36,6 +36,7 @@ SRC_URI = " \
     file://dss/0003-OMAPDSS-Fix-DSS-clock-multiplier-issue-on-3703-and-probably-3630.patch \
     \
     file://nand/0001-mtd-nand-omap2-Fix-device-detection-path.patch \
+    file://nand/0002-ARM-OMAP2+-nand-Fix-NAND-on-OMAP2-and-OMAP3-boards.patch \
     \
     file://drm/0001-omap_irq.c-do-not-BUG-on-spin_is_locked.patch \
     \

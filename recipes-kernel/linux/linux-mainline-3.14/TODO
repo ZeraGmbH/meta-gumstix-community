@@ -12,5 +12,3 @@
 	Find a way to force display if monitor does not have I2c (or on very old tobi)
 
 * 600MHz overo only: 'omap_hwmod: ssi: doesn't have mpu register target base'
-
-* nand ecc
