@@ -1,0 +1,28 @@
+From 9896fc11675918814f0267338f0c5c50d2402d57 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Fri, 16 May 2014 09:49:56 +0200
+Subject: [PATCH] OMAP3: output further revision information
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ arch/arm/mach-omap2/id.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/mach-omap2/id.c b/arch/arm/mach-omap2/id.c
+index 9428c5f..76012b0 100644
+--- a/arch/arm/mach-omap2/id.c
++++ b/arch/arm/mach-omap2/id.c
+@@ -357,6 +357,7 @@ void __init omap3xxx_check_revision(void)
+ 	idcode = read_tap_reg(OMAP_TAP_IDCODE);
+ 	hawkeye = (idcode >> 12) & 0xffff;
+ 	rev = (idcode >> 28) & 0xff;
++	pr_info("OMAP3 revisions: hawkeye=%04X, rev=%02X\n", hawkeye, rev);
+ 
+ 	switch (hawkeye) {
+ 	case 0xb7ae:
+-- 
+1.8.3.1
+

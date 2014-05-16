@@ -24,6 +24,8 @@ SRC_URI = " \
     file://defconfig \
     ${OVERO_BOOT_SPLASH} \
     \
+    file://core/0001-OMAP3-output-further-revision-information.patch \
+    \
     file://board_init/0001-board-overo.c-double-NAND-partition-for-kernel-to-8M.patch \
     \
     file://TWL4030/0001-drivers-rtc-rtc-twl.c-ensure-all-interrupts-are-disabled.patch \
