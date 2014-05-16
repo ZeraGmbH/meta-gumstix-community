@@ -62,4 +62,6 @@ SRC_URI = " \
     file://wifi/0009-mmc-omap_hsmmc-add-cmd23-support.patch \
     file://wifi/0010-mmc-omap_hsmmc-add-autocmd23-support.patch \
     file://wifi/0011-mmc-omap_hsmmc-Enable-SDIO-interrupts.patch \
+    \
+    file://powervr/0001-export-symbols-required-by-powervr.patch \
 "

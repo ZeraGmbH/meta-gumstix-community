@@ -1,0 +1,29 @@
+From 54ae4b1f5385ca3295e26fffbb6c1a18ce36740c Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Thu, 15 May 2014 17:34:34 +0200
+Subject: [PATCH] export symbols required by powervr
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ arch/arm/mm/proc-syms.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/arm/mm/proc-syms.c b/arch/arm/mm/proc-syms.c
+index 054b491..9b3c20e 100644
+--- a/arch/arm/mm/proc-syms.c
++++ b/arch/arm/mm/proc-syms.c
+@@ -30,6 +30,8 @@ EXPORT_SYMBOL(__cpuc_flush_user_all);
+ EXPORT_SYMBOL(__cpuc_flush_user_range);
+ EXPORT_SYMBOL(__cpuc_coherent_kern_range);
+ EXPORT_SYMBOL(__cpuc_flush_dcache_area);
++EXPORT_SYMBOL(dmac_flush_range);
++EXPORT_SYMBOL(dmac_map_area);
+ #else
+ EXPORT_SYMBOL(cpu_cache);
+ #endif
+-- 
+1.8.3.1
+
