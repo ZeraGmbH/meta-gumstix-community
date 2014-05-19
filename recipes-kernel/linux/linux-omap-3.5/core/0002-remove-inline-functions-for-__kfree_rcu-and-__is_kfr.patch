@@ -1,0 +1,56 @@
+From e4c09228f0c93d17f7b694cf45abe09c32454b3e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Mon, 19 May 2014 13:41:23 +0200
+Subject: [PATCH] remove inline functions for __kfree_rcu and
+ __is_kfree_rcu_offset
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+force using macros of same name to avoid build errors for modules with -O0
+
+| include/linux/rcupdate.h: In function '__kfree_rcu':
+| include/linux/rcupdate.h:918:2: error: size of unnamed array is negative
+|   BUILD_BUG_ON(!__builtin_constant_p(offset));
+
+see [1]
+
+[1] https://lkml.org/lkml/2012/1/12/65
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ include/linux/rcupdate.h | 18 ------------------
+ 1 file changed, 18 deletions(-)
+
+diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
+index 9cac722..c2a0686 100644
+--- a/include/linux/rcupdate.h
++++ b/include/linux/rcupdate.h
+@@ -905,24 +905,6 @@ static inline notrace void rcu_read_unlock_sched_notrace(void)
+ #define RCU_INIT_POINTER(p, v) \
+ 		p = (typeof(*v) __force __rcu *)(v)
+ 
+-static __always_inline bool __is_kfree_rcu_offset(unsigned long offset)
+-{
+-	return offset < 4096;
+-}
+-
+-static __always_inline
+-void __kfree_rcu(struct rcu_head *head, unsigned long offset)
+-{
+-	typedef void (*rcu_callback)(struct rcu_head *);
+-
+-	BUILD_BUG_ON(!__builtin_constant_p(offset));
+-
+-	/* See the kfree_rcu() header comment. */
+-	BUILD_BUG_ON(!__is_kfree_rcu_offset(offset));
+-
+-	kfree_call_rcu(head, (rcu_callback)offset);
+-}
+-
+ /*
+  * Does the specified offset indicate that the corresponding rcu_head
+  * structure can be handled by kfree_rcu()?
+-- 
+1.8.3.1
+

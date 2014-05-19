@@ -52,6 +52,7 @@ SRC_URI = " \
     file://mmc/0002-mmc-omap_hsmmc-remove-warning-message-for-debounce-c.patch \
     \
     file://core/0001-perf-Treat-attr.config-as-u64-in-perf_swevent_init.patch \
+    file://core/0002-remove-inline-functions-for-__kfree_rcu-and-__is_kfr.patch \
 "
 
 
