@@ -1,4 +1,4 @@
-require gles-omap3-no-x.inc
+require gles-omap3.inc
 
 LICENSE = "TSPA"
 
