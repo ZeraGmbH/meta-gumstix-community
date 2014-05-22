@@ -18,12 +18,8 @@ S = "${WORKDIR}/OMAP35x_Graphics_SDK_${SGXPV}"
 TI_BIN_UNPK_CMDS="Y: qY:workdir:Y"
 require ti-eula-unpack.inc
 
-export BINLOCATION ?= "${S}/gfx_rel"
-export ES3_0_LOCATION ?= "${S}/gfx_rel_es3.x"
-export ES5_0_LOCATION ?= "${S}/gfx_rel_es5.x"
-export ES6_0_LOCATION ?= "${S}/gfx_rel_es6.x"
-export ES8_0_LOCATION ?= "${S}/gfx_rel_es8.x"
-export ES9_0_LOCATION ?= "${S}/gfx_rel_es9.x"
+# GLESTYPE gfx_rel / gfx_dbg (debug crashed here..)
+GLESTYPE = "gfx_rel"
 
 do_configure() {
 	# Attempt to fix up the worst offenders for file permissions
@@ -60,6 +56,13 @@ do_compile() {
 }
 
 do_install () {
+	BINLOCATION="${S}/${GLESTYPE}"
+	ES3_0_LOCATION="${S}/${GLESTYPE}_es3.x"
+	ES5_0_LOCATION="${S}/${GLESTYPE}_es5.x"
+	ES6_0_LOCATION="${S}/${GLESTYPE}_es6.x"
+	ES8_0_LOCATION="${S}/${GLESTYPE}_es8.x"
+	ES9_0_LOCATION="${S}/${GLESTYPE}_es9.x"
+
 	install -d ${D}${libdir}
 	cp -pPR ${BINLOCATION}/*.so* ${D}${libdir}
 	rm ${D}${libdir}/libpvrPVR2D_DRIWSEGL.so*
