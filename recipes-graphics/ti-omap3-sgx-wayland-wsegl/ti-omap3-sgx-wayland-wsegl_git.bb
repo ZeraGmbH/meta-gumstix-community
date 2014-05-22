@@ -9,7 +9,7 @@ SRC_URI = " \
 	file://wayland-egl.pc.in \
 	file://egl.pc.in \
 "
-SRCREV = "da8da5f1c113e1ad534598f38e132b35ad684d2b"
+SRCREV = "b6c652a007f534e62c8e76a121eea337aa0bbfe5"
 PV = "0.1.3+git${SRCPV}"
 
 S = "${WORKDIR}/git"
