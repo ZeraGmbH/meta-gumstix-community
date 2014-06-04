@@ -7,7 +7,7 @@ SRC_URI = " \
 	git://github.com/schnitzeltony/ti-omap3-sgx-wayland-wsegl.git;protocol=git;branch=drm-gbm \
 	file://0001-load-libEGL-sgx.so-in-libdir-by-default.patch \
 "
-SRCREV = "748d77e5a7e453d3b4563d05c60f596ea6656ef6"
+SRCREV = "004164f1ba3ce4e447036133a343156ba934d81f"
 PV = "0.2.0"
 #PV = "0.1.3+git${SRCPV}"
 
@@ -25,7 +25,7 @@ DEFAULT_PREFERENCE = "-1"
 # mesa means wayland-egl/libgbm in wayland context (see weston)
 PROVIDES = "virtual/mesa virtual/egl"
 
-FILES_${PN} += "${libdir}/gbm/*.so"
+FILES_${PN} += "${libdir}/waylandwsegl.so ${libdir}/gbm/*.so"
 FILES_${PN}-dbg += "${libdir}/gbm/.debug"
 FILES_${PN}-dev += "${libdir}/gbm/*.la"
 FILES_${PN}-staticdev += "${libdir}/gbm/*.a"
