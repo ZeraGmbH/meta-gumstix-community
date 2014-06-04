@@ -17,7 +17,7 @@ inherit autotools pkgconfig
 
 REQUIRED_DISTRO_FEATURES = "wayland"
 
-DEPENDS = "gles-omap3 wayland"
+DEPENDS = "gles-omap3 wayland udev libdrm"
 
 DEFAULT_PREFERENCE_omap3 = "99"
 DEFAULT_PREFERENCE = "-1"
@@ -39,5 +39,6 @@ RDEPENDS_${PN} += "${PN}-so"
 # our egl links during runtime
 RDEPENDS_${PN} += "gles-omap3"
 
+RRECOMMENDS_${PN} = "libdrm-omap"
 
 
