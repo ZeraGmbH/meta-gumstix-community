@@ -10,7 +10,7 @@ SRC_URI = " \
     file://0001-sgx_options-remove-debug-bit.patch \
 "
 
-SRCREV = "6cc8464b1896ba8bfce2a6bdd0ee3719970902d4"
+SRCREV = "9bb80a58b71c89bda05e1962841f7af50108d5a4"
 PV = "5.01.01.01+git${SRCPV}"
 S = "${WORKDIR}/git/Graphics_SDK/GFX_Linux_KM/"
 
