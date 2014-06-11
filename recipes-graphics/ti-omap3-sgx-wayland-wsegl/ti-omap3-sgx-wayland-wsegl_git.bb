@@ -7,7 +7,7 @@ SRC_URI = " \
 	git://github.com/schnitzeltony/ti-omap3-sgx-wayland-wsegl.git;protocol=git;branch=drm-gbm \
 	file://0001-load-libEGL-sgx.so-in-libdir-by-default.patch \
 "
-SRCREV = "ab666a5de9f9fcf15d35b65177a68f2dea62c47c"
+SRCREV = "7acc6a1e171c7683ca757e185c7afcfed1a0de30"
 PV = "0.2.0"
 #PV = "0.1.3+git${SRCPV}"
 
