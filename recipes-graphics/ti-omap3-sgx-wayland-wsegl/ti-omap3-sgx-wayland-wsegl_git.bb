@@ -7,7 +7,7 @@ SRC_URI = " \
 	git://github.com/schnitzeltony/ti-omap3-sgx-wayland-wsegl.git;protocol=git;branch=drm-gbm \
 	file://0001-load-libEGL-sgx.so-in-libdir-by-default.patch \
 "
-SRCREV = "004164f1ba3ce4e447036133a343156ba934d81f"
+SRCREV = "ab666a5de9f9fcf15d35b65177a68f2dea62c47c"
 PV = "0.2.0"
 #PV = "0.1.3+git${SRCPV}"
 
@@ -38,7 +38,5 @@ RDEPENDS_${PN} += "${PN}-so"
 
 # our egl links during runtime
 RDEPENDS_${PN} += "gles-omap3"
-
-RRECOMMENDS_${PN} = "libdrm-omap"
 
 
