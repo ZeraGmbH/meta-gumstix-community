@@ -6,11 +6,11 @@ LIC_FILES_CHKSUM = "file://MIT-COPYING;md5=8c2810fa6bfdc5ae5c15a0c1ade34054"
 PVRBUILD = "debug"
 
 SRC_URI = " \
-    git://github.com/schnitzeltony/ti-sdk-pvr.git;protocol=git;branch=for-meta-gumstix-community \
+    git://github.com/schnitzeltony/ti-sdk-pvr.git;protocol=git;branch=omap5-sdk-test \
     file://0001-sgx_options-remove-debug-bit.patch \
 "
 
-SRCREV = "9bb80a58b71c89bda05e1962841f7af50108d5a4"
+SRCREV = "9ca1a60ad267f2acd91074fbf7aadf5629cc9a2a"
 PV = "5.01.01.01+git${SRCPV}"
 S = "${WORKDIR}/git/Graphics_SDK/GFX_Linux_KM/"
 
@@ -23,7 +23,7 @@ TI_PLATFORM_omap3 = "omap3630"
 MODULESLOCATION_omap3 = "dc_omapfb3_linux"
 
 # linux-omap-3.5: MAKE_TARGETS = "BUILD=${PVRBUILD} TI_PLATFORM=${TI_PLATFORM} PM_RUNTIME=no"
-MAKE_TARGETS = "BUILD=${PVRBUILD} TI_PLATFORM=${TI_PLATFORM} FBDEV=omapdrm"
+MAKE_TARGETS = "BUILD=${PVRBUILD} TI_PLATFORM=${TI_PLATFORM} SUPPORT_DRI_DRM_EXTERNAL=1 SUPPORT_DRI_DRM=1"
 
 do_install() {
     mkdir -p ${D}/lib/modules/${KERNEL_VERSION}/kernel/drivers/gpu/pvr
