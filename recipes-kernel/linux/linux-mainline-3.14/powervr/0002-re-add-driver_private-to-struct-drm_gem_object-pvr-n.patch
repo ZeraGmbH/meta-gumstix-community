@@ -1,0 +1,34 @@
+From ffb3e3e613b264a85351b360b6675c92210baee9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Fri, 13 Jun 2014 13:58:19 +0200
+Subject: [PATCH 2/5] re-add driver_private to struct drm_gem_object - pvr
+ needs it to attach information
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ include/drm/drmP.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/include/drm/drmP.h b/include/drm/drmP.h
+index 04a7f31..a2975c7 100644
+--- a/include/drm/drmP.h
++++ b/include/drm/drmP.h
+@@ -682,6 +682,12 @@ struct drm_gem_object {
+ 	uint32_t pending_read_domains;
+ 	uint32_t pending_write_domain;
+ 
++
++	/**
++     * driver_private - pvr needs this to attach some extra information
++	 */
++    void *driver_private;
++    
+ 	/**
+ 	 * dma_buf - dma buf associated with this GEM object
+ 	 *
+-- 
+1.8.3.1
+

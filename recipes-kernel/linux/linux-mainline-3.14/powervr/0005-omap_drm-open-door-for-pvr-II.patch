@@ -1,0 +1,80 @@
+From 98c9c4024e44a00b4ff27182556b595dcfa2904e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Mon, 16 Jun 2014 13:52:25 +0200
+Subject: [PATCH 5/5] omap_drm: open door for pvr II
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Add omap_drm_file_priv and omap_drm_file_set_priv by guessing what they might
+do. Signatures of these functions were found in [1].
+
+[1] https://git.linaro.org/?p=ubuntu/pvr-omap4.git;a=commitdiff;h=37023a7b236dbc5ca98d7eb1c334010e850a6fa2
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ drivers/gpu/drm/omapdrm/omap_drv.c | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/omapdrm/omap_drv.c b/drivers/gpu/drm/omapdrm/omap_drv.c
+index ac24d3e..488341f 100644
+--- a/drivers/gpu/drm/omapdrm/omap_drv.c
++++ b/drivers/gpu/drm/omapdrm/omap_drv.c
+@@ -561,16 +561,23 @@ static int dev_unload(struct drm_device *dev)
+ 	return 0;
+ }
+ 
++struct pvr_priv {
++	void * driver_priv[MAX_MAPPERS];
++};
++
+ static int dev_open(struct drm_device *dev, struct drm_file *file)
+ {
+ 	struct omap_drm_plugin *plugin;
+ 	bool found_pvr = false;
+ 	int ret;
+ 
+-	file->driver_priv = NULL;
+-
+ 	DBG("open: dev=%p, file=%p", dev, file);
+ 
++	/* for omap_drm_file_(set)priv */
++	file->driver_priv = kzalloc(sizeof(struct pvr_priv), GFP_KERNEL);
++	if (!file->driver_priv)
++		return -ENOMEM;
++
+ 	list_for_each_entry(plugin, &plugin_list, list) {
+ 		if (!strcmp(DRIVER_NAME "_pvr", plugin->name)) {
+ 			found_pvr = true;
+@@ -649,6 +656,7 @@ static void dev_postclose(struct drm_device *dev, struct drm_file *file)
+ 	list_for_each_entry(plugin, &plugin_list, list) {
+ 		ret = plugin->release(dev, file);
+ 	}
++	kfree(file->driver_priv);
+ }
+ 
+ static const struct vm_operations_struct omap_gem_vm_ops = {
+@@ -779,6 +787,20 @@ void omap_drm_unregister_mapper(int mapper_id)
+ }
+ EXPORT_SYMBOL(omap_drm_unregister_mapper);
+ 
++void * omap_drm_file_priv(struct drm_file *file, int mapper_id)
++{
++	BUG_ON((mapper_id >= MAX_MAPPERS) || (mapper_id < 0));
++	return ((struct pvr_priv*)(file->driver_priv))->driver_priv[mapper_id];
++}
++EXPORT_SYMBOL(omap_drm_file_priv);
++
++void omap_drm_file_set_priv(struct drm_file *file, int mapper_id, void *priv)
++{
++	BUG_ON((mapper_id >= MAX_MAPPERS) || (mapper_id < 0));
++	((struct pvr_priv*)(file->driver_priv))->driver_priv[mapper_id] = priv;
++}
++EXPORT_SYMBOL(omap_drm_file_set_priv);
++
+ static int pdev_suspend(struct platform_device *pDevice, pm_message_t state)
+ {
+ 	DBG("");
+-- 
+1.8.3.1
+
