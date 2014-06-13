@@ -1,7 +1,7 @@
-From 54ae4b1f5385ca3295e26fffbb6c1a18ce36740c Mon Sep 17 00:00:00 2001
+From 6d3495edcc7e836e3801c7bb6881cb187abfd705 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
 Date: Thu, 15 May 2014 17:34:34 +0200
-Subject: [PATCH] export symbols required by powervr
+Subject: [PATCH 1/5] export symbols required by powervr
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
