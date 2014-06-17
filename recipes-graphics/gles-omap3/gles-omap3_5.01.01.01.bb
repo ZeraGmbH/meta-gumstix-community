@@ -32,7 +32,6 @@ python __anonymous() {
 SRC_URI = "http://software-dl.ti.com/dsps/dsps_public_sw/gfxsdk/${SGXPV}/exports/${BINFILE} \
 	file://cputype \
 	file://rc.pvr \
-	file://99-bufferclass.rules  \
 	file://glesv2.pc.in \
 	file://0001-eglext.h-add-EGL_WAYLAND_BUFFER_WL-to-prepare-ti-oma.patch \
 	file://0002-eglplatform.h-add-missing-entries-for-wayland-and-gb.patch \

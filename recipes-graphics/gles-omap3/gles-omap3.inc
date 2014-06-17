@@ -118,9 +118,6 @@ do_install () {
 	find ${D} -name "*.o" -delete
 	find ${D} -name "*.o.cmd" -delete
 
-	install -d ${D}${sysconfdir}/udev/rules.d
-	install -m 0644 ${WORKDIR}/99-bufferclass.rules ${D}${sysconfdir}/udev/rules.d/
-
 	# pkgconfig
 	install -d ${D}${libdir}/pkgconfig
 	for pkgconfig_name in ${PKGCONFIGS-SHIPPED} ; do
