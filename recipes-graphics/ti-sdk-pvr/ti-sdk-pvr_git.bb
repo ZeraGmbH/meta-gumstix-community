@@ -8,6 +8,7 @@ PVRBUILD = "debug"
 SRC_URI = " \
     git://github.com/schnitzeltony/ti-sdk-pvr.git;protocol=git;branch=omap5-sdk-test \
     file://0001-sgx_options-remove-debug-bit.patch \
+    file://pvrsrv.conf \
 "
 
 SRCREV = "72c4afa92b9a86dcfaa86d630769dedb8954c0a5"
@@ -26,7 +27,10 @@ MODULESLOCATION_omap3 = "dc_omapfb3_linux"
 MAKE_TARGETS = "BUILD=${PVRBUILD} TI_PLATFORM=${TI_PLATFORM} SUPPORT_DRI_DRM_EXTERNAL=1 SUPPORT_DRI_DRM=1"
 
 do_install() {
-    mkdir -p ${D}/lib/modules/${KERNEL_VERSION}/kernel/drivers/gpu/pvr
-    cp  ${S}/pvrsrvkm.ko \
-        ${D}/lib/modules/${KERNEL_VERSION}/kernel/drivers/gpu/pvr
+	mkdir -p ${D}/lib/modules/${KERNEL_VERSION}/kernel/drivers/gpu/pvr
+	install -m 644 ${B}/pvrsrvkm.ko ${D}/lib/modules/${KERNEL_VERSION}/kernel/drivers/gpu/pvr
+	install -d ${D}${sysconfdir}/modules-load.d
+	install -m 644 ${WORKDIR}/pvrsrv.conf ${D}${sysconfdir}/modules-load.d
 }
+
+FILES_${PN} += "${sysconfdir}/modules-load.d"
