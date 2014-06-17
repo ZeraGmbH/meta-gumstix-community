@@ -14,8 +14,8 @@ python do_unpack () {
     bb.build.exec_func('ti_bin_do_unpack', d)
 
     # InstallJammer requires 32bit version of glibc - it dies silently and undone on missing library
-    if not os.path.exists('%s/Graphics_SDK_%s' % (bb.data.getVar('WORKDIR', d), bb.data.getVar('SGXPV', d))):
-        bb.error("Files were not extracted\nTI installer requires 32bit glibc libraries for proper operation\nrun 'yum install glibc.i686' on Fedora or 'apt-get install ia32-libs' on Ubuntu/Debian")
+    if not os.path.exists('%s/Graphics_SDK_%s' % (d.getVar('WORKDIR', True), d.getVar('SGXPV', True))) :
+        bb.warn("Files were not extracted. TI installer requires 32bit glibc libraries for proper operation. Run 'yum install glibc.i686' on Fedora or 'apt-get install ia32-libs' on Ubuntu/Debian")
 }
 
 TI_BIN_UNPK_WDEXT ?= ""
