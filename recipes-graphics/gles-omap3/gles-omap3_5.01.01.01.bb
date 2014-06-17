@@ -33,11 +33,12 @@ SRC_URI = "http://software-dl.ti.com/dsps/dsps_public_sw/gfxsdk/${SGXPV}/exports
 	file://cputype \
 	file://rc.pvr \
 	file://glesv2.pc.in \
+	file://libpvr2d.pc.in \
 	file://0001-eglext.h-add-EGL_WAYLAND_BUFFER_WL-to-prepare-ti-oma.patch \
 	file://0002-eglplatform.h-add-missing-entries-for-wayland-and-gb.patch \
 "
 
-PKGCONFIGS-SHIPPED = "glesv2"
+PKGCONFIGS-SHIPPED = "glesv2 libpvr2d"
 
 SRC_URI[md5sum] := "94acdbd20152c905939c2448d5e80a72"
 SRC_URI[sha256sum] := "7f647bf45a5ce8ba9aaa28c4afe85fced4275f9a4567a1886d4460b76c9051ae"
