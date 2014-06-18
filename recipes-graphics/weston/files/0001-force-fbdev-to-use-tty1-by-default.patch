@@ -1,0 +1,31 @@
+From 9365ff236151957d88709c242c3e94d891c78d54 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Wed, 5 Feb 2014 09:34:29 +0100
+Subject: [PATCH 2/2] force fbdev to use tty1 by default
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Upstream-Status: Inappropriate [configuration]
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ src/compositor-fbdev.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/src/compositor-fbdev.c b/src/compositor-fbdev.c
+index 53bc0dd..ce5b899 100644
+--- a/src/compositor-fbdev.c
++++ b/src/compositor-fbdev.c
+@@ -961,7 +961,7 @@ backend_init(struct wl_display *display, int *argc, char *argv[],
+ 	/* TODO: Ideally, available frame buffers should be enumerated using
+ 	 * udev, rather than passing a device node in as a parameter. */
+ 	struct fbdev_parameters param = {
+-		.tty = 0, /* default to current tty */
++		.tty = 1, /* default to current tty */
+ 		.device = "/dev/fb0", /* default frame buffer */
+ 		.use_gl = 0,
+ 	};
+-- 
+1.8.3.1
+
