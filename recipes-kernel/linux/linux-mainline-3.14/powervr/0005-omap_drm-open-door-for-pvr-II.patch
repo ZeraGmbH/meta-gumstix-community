@@ -1,7 +1,7 @@
 From 98c9c4024e44a00b4ff27182556b595dcfa2904e Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
 Date: Mon, 16 Jun 2014 13:52:25 +0200
-Subject: [PATCH 5/5] omap_drm: open door for pvr II
+Subject: [PATCH 5/6] omap_drm: open door for pvr II
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
