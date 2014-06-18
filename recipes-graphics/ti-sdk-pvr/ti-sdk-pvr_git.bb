@@ -10,7 +10,7 @@ SRC_URI = " \
     file://0001-sgx_options-remove-debug-bit.patch \
 "
 
-SRCREV = "96098e44a37a950c3c40db4e817cf9d13acb5336"
+SRCREV = "59b1f97eded7e41e749ffd4c79ed17330a205c87"
 PV = "5.01.01.01+git${SRCPV}"
 S = "${WORKDIR}/git/Graphics_SDK/GFX_Linux_KM/"
 
@@ -24,5 +24,5 @@ MAKE_TARGETS = "BUILD=${PVRBUILD} TI_PLATFORM=${TI_PLATFORM} SUPPORT_DRI_DRM_EXT
 
 do_install() {
     mkdir -p ${D}/lib/modules/${KERNEL_VERSION}/kernel/drivers/gpu/pvr
-    cp  ${S}/pvrsrvkm.ko ${D}/lib/modules/${KERNEL_VERSION}/kernel/drivers/gpu/pvr
+    cp  ${S}/omapdrm_pvr.ko ${D}/lib/modules/${KERNEL_VERSION}/kernel/drivers/gpu/pvr
 }
