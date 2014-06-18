@@ -1,0 +1,39 @@
+From d6b7c76ba2dbf39773e43a92c046c6b533507680 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Thu, 22 May 2014 11:27:12 +0200
+Subject: [PATCH] sgx_options: remove debug bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Debug client libraries don't work here currently. To allow kernel modules to
+be run with debug information we simply remove the flag.
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ include4/sgx_options.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/include4/sgx_options.h b/include4/sgx_options.h
+index 6cf1d9b..c98f899 100644
+--- a/include4/sgx_options.h
++++ b/include4/sgx_options.h
+@@ -57,12 +57,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+  */
+ 
+ 
+-#if defined(DEBUG) || defined (INTERNAL_TEST)
++/*#if defined(DEBUG) || defined (INTERNAL_TEST)
+ #define DEBUG_SET_OFFSET	OPTIONS_BIT0
+ #define OPTIONS_BIT0		0x1U
+-#else
++#else*/
+ #define OPTIONS_BIT0		0x0
+-#endif /* DEBUG */
++/*#endif */ /* DEBUG */
+ 
+ #if defined(PDUMP) || defined (INTERNAL_TEST)
+ #define PDUMP_SET_OFFSET	OPTIONS_BIT1
+-- 
+1.8.3.1
+
