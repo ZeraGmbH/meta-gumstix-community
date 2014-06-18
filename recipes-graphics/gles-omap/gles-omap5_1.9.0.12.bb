@@ -28,10 +28,11 @@ FILES_${PN}-xorg = "${libdir}/xorg/"
 INSANE_SKIP_${PN} = "useless-rpaths dev-so"
 INSANE_SKIP_${PN}-dev = "useless-rpaths"
 
-RDEPENDS_${PN} += "ti-sdk-pvr libgbm"
-
 # keep out mesa (we don't provide gl..)
 PROVIDES = "virtual/libgl virtual/libgles1 virtual/libgles2 virtual/egl"
-# mesa means wayland-egl in wayland context (see weston)
-PROVIDES += "virtual/mesa"
 
+# virtual/mesa means wayland-egl/libgbm in wayland context (see weston)
+PROVIDES += "virtual/mesa"
+DEPENDS += "libgbm"
+
+RDEPENDS_${PN} += "ti-sdk-pvr libgbm"
