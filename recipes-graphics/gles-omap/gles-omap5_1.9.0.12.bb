@@ -7,7 +7,10 @@ LIC_FILES_CHKSUM = "file://OMAP5-Linux-Graphics-DDK-UM-Manifest.doc;md5=360d293d
 
 INHIBIT_PACKAGE_STRIP = "1"
 
-SRC_URI = "git://git.ti.com/graphics/omap5-sgx-ddk-um-linux.git;protocol=git"
+SRC_URI = " \
+    git://git.ti.com/graphics/omap5-sgx-ddk-um-linux.git;protocol=git \
+    file://0001-eglplatform.h-add-missing-entries-for-wayland-and-gb.patch \
+"
 SRCREV = "994922a5655c63b05343a9238cb30e6ef61744be"
 
 S = "${WORKDIR}/git"
