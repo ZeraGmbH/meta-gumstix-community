@@ -1,0 +1,98 @@
+From 3e92b7f1c6d9dd338d40f4402c5d414a2a7390eb Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Wed, 18 Jun 2014 19:25:44 +0200
+Subject: [PATCH 6/6] omap_drm: open door for pvr III
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+ioctl_get_base was missing - it was taken from
+
+http://omapzoom.org/?p=kernel/omap.git;a=blob;f=drivers/gpu/drm/omapdrm/omap_drv.c;h=46478c66383ad7ce4e35635b595f192780983fea;hb=refs/heads/p-ti-glsdk-3.8.y
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ drivers/gpu/drm/omapdrm/omap_drv.c | 22 ++++++++++++++++++++++
+ include/uapi/drm/omap_drm.h        | 10 ++++++----
+ 2 files changed, 28 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/gpu/drm/omapdrm/omap_drv.c b/drivers/gpu/drm/omapdrm/omap_drv.c
+index 488341f..8457c2a 100644
+--- a/drivers/gpu/drm/omapdrm/omap_drv.c
++++ b/drivers/gpu/drm/omapdrm/omap_drv.c
+@@ -370,6 +370,27 @@ static int ioctl_set_param(struct drm_device *dev, void *data,
+ 	return 0;
+ }
+ 
++static int ioctl_get_base(struct drm_device *dev, void *data,
++		struct drm_file *file_priv)
++{
++	struct drm_omap_get_base *args = data;
++	struct omap_drm_plugin *plugin;
++
++	/* be safe: */
++	args->plugin_name[ARRAY_SIZE(args->plugin_name) - 1] = '\0';
++
++	DBG("%p: plugin_name=%s", dev, args->plugin_name);
++
++	list_for_each_entry(plugin, &plugin_list, list) {
++		if (!strcmp(args->plugin_name, plugin->name)) {
++			args->ioctl_base = plugin->ioctl_base;
++			return 0;
++		}
++	}
++
++	return -EINVAL;
++}
++
+ static int ioctl_gem_new(struct drm_device *dev, void *data,
+ 		struct drm_file *file_priv)
+ {
+@@ -451,6 +472,7 @@ static int ioctl_gem_info(struct drm_device *dev, void *data,
+ static struct drm_ioctl_desc ioctls[DRM_COMMAND_END - DRM_COMMAND_BASE] = {
+ 	DRM_IOCTL_DEF_DRV(OMAP_GET_PARAM, ioctl_get_param, DRM_UNLOCKED|DRM_AUTH),
+ 	DRM_IOCTL_DEF_DRV(OMAP_SET_PARAM, ioctl_set_param, DRM_UNLOCKED|DRM_AUTH|DRM_MASTER|DRM_ROOT_ONLY),
++	DRM_IOCTL_DEF_DRV(OMAP_GET_BASE, ioctl_get_base, DRM_UNLOCKED|DRM_AUTH),
+ 	DRM_IOCTL_DEF_DRV(OMAP_GEM_NEW, ioctl_gem_new, DRM_UNLOCKED|DRM_AUTH),
+ 	DRM_IOCTL_DEF_DRV(OMAP_GEM_CPU_PREP, ioctl_gem_cpu_prep, DRM_UNLOCKED|DRM_AUTH),
+ 	DRM_IOCTL_DEF_DRV(OMAP_GEM_CPU_FINI, ioctl_gem_cpu_fini, DRM_UNLOCKED|DRM_AUTH),
+diff --git a/include/uapi/drm/omap_drm.h b/include/uapi/drm/omap_drm.h
+index 08b79f0..e08acc9 100644
+--- a/include/uapi/drm/omap_drm.h
++++ b/include/uapi/drm/omap_drm.h
+@@ -33,6 +33,12 @@ struct drm_omap_param {
+ 	uint64_t value;			/* in (set_param), out (get_param) */
+ };
+ 
++struct drm_omap_get_base {
++	char plugin_name[64];           /* in */
++	uint32_t ioctl_base;            /* out */
++	uint32_t __pad;
++};
++
+ #define OMAP_BO_SCANOUT		0x00000001	/* scanout capable (phys contiguous) */
+ #define OMAP_BO_CACHE_MASK	0x00000006	/* cache type mask, see cache modes */
+ #define OMAP_BO_TILED_MASK	0x00000f00	/* tiled mapping mask, see tiled modes */
+@@ -101,9 +107,7 @@ struct drm_omap_gem_info {
+ 
+ #define DRM_OMAP_GET_PARAM		0x00
+ #define DRM_OMAP_SET_PARAM		0x01
+-/* placeholder for plugin-api
+ #define DRM_OMAP_GET_BASE		0x02
+-*/
+ #define DRM_OMAP_GEM_NEW		0x03
+ #define DRM_OMAP_GEM_CPU_PREP		0x04
+ #define DRM_OMAP_GEM_CPU_FINI		0x05
+@@ -112,9 +116,7 @@ struct drm_omap_gem_info {
+ 
+ #define DRM_IOCTL_OMAP_GET_PARAM	DRM_IOWR(DRM_COMMAND_BASE + DRM_OMAP_GET_PARAM, struct drm_omap_param)
+ #define DRM_IOCTL_OMAP_SET_PARAM	DRM_IOW (DRM_COMMAND_BASE + DRM_OMAP_SET_PARAM, struct drm_omap_param)
+-/* placeholder for plugin-api
+ #define DRM_IOCTL_OMAP_GET_BASE		DRM_IOWR(DRM_COMMAND_BASE + DRM_OMAP_GET_BASE, struct drm_omap_get_base)
+-*/
+ #define DRM_IOCTL_OMAP_GEM_NEW		DRM_IOWR(DRM_COMMAND_BASE + DRM_OMAP_GEM_NEW, struct drm_omap_gem_new)
+ #define DRM_IOCTL_OMAP_GEM_CPU_PREP	DRM_IOW (DRM_COMMAND_BASE + DRM_OMAP_GEM_CPU_PREP, struct drm_omap_gem_cpu_prep)
+ #define DRM_IOCTL_OMAP_GEM_CPU_FINI	DRM_IOW (DRM_COMMAND_BASE + DRM_OMAP_GEM_CPU_FINI, struct drm_omap_gem_cpu_fini)
+-- 
+1.8.3.1
+

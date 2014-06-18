@@ -69,4 +69,5 @@ SRC_URI = " \
     file://powervr/0003-re-add-priv-to-struct-omap_gem_object-pvr-needs-it-t.patch \
     file://powervr/0004-omap_drm-open-door-for-pvr.patch \
     file://powervr/0005-omap_drm-open-door-for-pvr-II.patch \
+    file://powervr/0006-omap_drm-open-door-for-pvr-III.patch \
 "
