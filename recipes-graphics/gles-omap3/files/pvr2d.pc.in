@@ -3,7 +3,7 @@ exec_prefix=${prefix}
 libdir=%LIBDIR%
 includedir=%INCDIR%
 
-Name: libpvr2d
+Name: pvr2d
 Description: OMAP 2D sgx wrapper
 Requires.private: 
 Version: %VERSION%
