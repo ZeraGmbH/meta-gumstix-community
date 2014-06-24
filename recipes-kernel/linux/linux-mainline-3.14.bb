@@ -68,4 +68,6 @@ SRC_URI = " \
     file://powervr/0002-re-add-driver_private-to-struct-drm_gem_object-pvr-n.patch \
     file://powervr/0003-re-add-priv-to-struct-omap_gem_object-pvr-needs-it-t.patch \
     file://powervr/0004-omap_drm-open-door-for-pvr.patch \
+    file://powervr/0005-Revert-drm-Perform-ioctl-command-validation-on-the-s.patch \
+    file://powervr/0006-Revert-drm-gem-implement-vma-access-management.patch \
 "
