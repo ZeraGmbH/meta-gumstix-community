@@ -1,20 +1,18 @@
 DESCRIPTION = "Wayland WSEGL plugin for SGX drivers"
 LICENSE = "LGPLv2.1 & proprietary"
-LIC_FILES_CHKSUM = "file://LICENSE;md5=86515e83f3ce1048848e1122b9b1ef9c \
+LIC_FILES_CHKSUM = "file://LICENSE;md5=09edfc0c5635d7762a26198a98a4f931 \
                     file://LICENSE.LGPL;md5=24a4036de5c39ff01ad4986c4870d8c0"
 
 SRC_URI = " \
 	git://github.com/schnitzeltony/ti-omap3-sgx-wayland-wsegl.git;protocol=git;branch=master \
 	file://0001-load-libEGL-sgx.so-in-libdir-by-default.patch \
-	file://wayland-egl.pc.in \
-	file://egl.pc.in \
 "
-SRCREV = "b6c652a007f534e62c8e76a121eea337aa0bbfe5"
+SRCREV = "5db0d98935ab9387e3cc9dd0fdf8ba167c2e4b1f"
 PV = "0.1.3+git${SRCPV}"
 
 S = "${WORKDIR}/git"
 
-inherit qmake5
+inherit autotools
 
 REQUIRED_DISTRO_FEATURES = "wayland"
 
@@ -30,29 +28,12 @@ DEFAULT_PREFERENCE = "-1"
 PROVIDES = "virtual/mesa"
 PROVIDES += "virtual/egl"
 
-# weston requires egl >= 7.10 currently
-VERSION = "9.0.0"
-
 # pin spec path to native - qtbase for target does not yet exist
 OE_QMAKE_DEBUG_OUTPUT = "-spec ${QMAKE_MKSPEC_PATH_NATIVE}/mkspecs/linux-oe-g++"
 
-do_install_append() {
-	# install pkconfigs
-	install -d ${D}${libdir}/pkgconfig
-	for pkgconfig_name in egl wayland-egl ; do
-		sed \
-			-e 's:%PREFIX%:${prefix}:g' \
-			-e 's:%LIBDIR%:${libdir}:g' \
-			-e 's:%INCDIR%:${includedir}:g' \
-			-e 's:%VERSION%:${VERSION}:g' \
-			< "${WORKDIR}/${pkgconfig_name}.pc.in" > "${D}/${libdir}/pkgconfig/${pkgconfig_name}.pc"
-	done
-
-}
-
 FILES_${PN} += "${libdir}/*.so"
 # eglinfo needs libEGL.so so pack dev package manually
-FILES_${PN}-dev = "${libdir}/pkgconfig ${libdir}/libwayland-egl.so"
+FILES_${PN}-dev = "${libdir}/pkgconfig ${libdir}/libwayland-egl.so ${libdir}/*.la"
 INSANE_SKIP_${PN} = "dev-so"
 
 # we don't link statically
