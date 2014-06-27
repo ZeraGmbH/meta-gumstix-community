@@ -23,7 +23,7 @@ TI_PLATFORM_omap3 = "omap3630"
 MODULESLOCATION_omap3 = "dc_omapfb3_linux"
 
 # linux-omap-3.5: MAKE_TARGETS = "BUILD=${PVRBUILD} TI_PLATFORM=${TI_PLATFORM} PM_RUNTIME=no"
-MAKE_TARGETS = "BUILD=${PVRBUILD} TI_PLATFORM=${TI_PLATFORM} FBDEV=omapdrm"
+MAKE_TARGETS = "BUILD=${PVRBUILD} TI_PLATFORM=${TI_PLATFORM}"
 
 do_install() {
     mkdir -p ${D}/lib/modules/${KERNEL_VERSION}/kernel/drivers/gpu/pvr
