@@ -59,7 +59,6 @@ sgxprepare () {
 	modprobe bufferclass_ti
 
 	pvr_maj=`grep "pvrsrvkm$" /proc/devices | cut -b1,2,3`
-	bc_maj=`grep "bc" /proc/devices | cut -b1,2,3`
 
 	if [ -e /dev/pvrsrvkm ] ; then
 		rm -f /dev/pvrsrvkm
