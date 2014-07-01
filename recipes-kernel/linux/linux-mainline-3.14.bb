@@ -4,7 +4,7 @@ COMPATIBLE_MACHINE = "(overo)"
 
 DESCRIPTION = "Linux kernel for gumstix overo"
 
-SRCREV_overo = "fce5b5fc495819be9eef7d4d41a9659b2968c7ea"
+SRCREV_overo = "bbae7add628cfe96a1facd578dd1eddcd1030de7"
 
 FILESEXTRAPATHS_prepend = "${FILE_DIRNAME}/splash:"
 OVERO_BOOT_SPLASH ??= "file://logo_linux_clut224.ppm"
@@ -14,7 +14,7 @@ S = "${WORKDIR}/git"
 KERNEL_IMAGETYPE = "uImage"
 KERNEL_EXTRA_ARGS += "LOADADDR=${UBOOT_ENTRYPOINT}"
 
-PV = "3.14.7"
+PV = "3.14.10"
 
 FILESEXTRAPATHS_prepend = "${FILE_DIRNAME}/linux-mainline-3.14:${FILE_DIRNAME}/linux-mainline-3.14/${MACHINE}:"
 
