@@ -1,0 +1,37 @@
+From 2d88fbaf66c2a8e70a367b605fc86760aaccc2f9 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Fri, 13 Jun 2014 21:09:17 +0200
+Subject: [PATCH 3/6] re-add priv to struct omap_gem_object - pvr needs it to
+ attach mapping information
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ drivers/gpu/drm/omapdrm/omap_gem.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/gpu/drm/omapdrm/omap_gem.c b/drivers/gpu/drm/omapdrm/omap_gem.c
+index 5aec3e8..83c1548 100644
+--- a/drivers/gpu/drm/omapdrm/omap_gem.c
++++ b/drivers/gpu/drm/omapdrm/omap_gem.c
+@@ -117,6 +117,15 @@ struct omap_gem_object {
+ 		uint32_t read_pending;
+ 		uint32_t read_complete;
+ 	} *sync;
++
++	/**
++	 * per-mapper private data..
++	 *
++	 * TODO maybe there can be a more flexible way to store per-mapper data..
++	 * for now I just keep it simple, and since this is only accessible
++	 * externally via omap_gem_priv()/omap_get_set_priv()
++	 */
++	void *priv[MAX_MAPPERS];
+ };
+ 
+ static int get_pages(struct drm_gem_object *obj, struct page ***pages);
+-- 
+1.8.3.1
+

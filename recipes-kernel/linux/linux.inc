@@ -170,12 +170,13 @@ do_configure_append() {
 do_install_append() {
 	oe_runmake headers_install INSTALL_HDR_PATH=${D}${exec_prefix}/src/linux-${KERNEL_VERSION} ARCH=$ARCH
 
-        # we need drm source codes back - later versions of omap3-sgx-modules needs it
-        cp -f drivers/gpu/drm/*.c $kerneldir/drivers/gpu/drm
+	# omap5-sdk complains for missing vmlinux
+	cp -f vmlinux $kerneldir
 }
 
-PACKAGES =+ "kernel-headers"
+PACKAGES =+ " kernel-dbg kernel-headers"
 FILES_kernel-headers = "${exec_prefix}/src/linux*"
+FILES_kernel-dbg = "${exec_prefix}/src/kernel/.debug"
 
 # Automatically depend on lzop-native if CONFIG_KERNEL_LZO is enabled
 python () {
