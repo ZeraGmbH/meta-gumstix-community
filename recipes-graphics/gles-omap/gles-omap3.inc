@@ -33,6 +33,13 @@ do_configure() {
 			mv $egllib $(echo $egllib | sed 's:libEGL.:libEGL-sgx.:')
 		done
 	fi
+
+	# we are interested in libsrv_um_dri.so
+	for sofile in $(find ${S} -name libsrv_um_dri.so); do
+		rm -f $(dirname $sofile)/libsrv_um.so
+		mv $sofile $(dirname $sofile)/libsrv_um.so
+	done
+
 	# Attempt to create proper library softlinks
 	for sofile in $(find ${S} -name "lib*Open*.so") $(find ${S} -name "lib*srv*.so") $(find ${S} -name "lib*gl*.so") $(find ${S} -name "libpvr*.so") $(find ${S} -name "lib*GL*.so"); do
 		if [ "$(readlink -n ${sofile})" = "" ] ; then
@@ -66,7 +73,7 @@ do_install () {
 	install -d ${D}${libdir}
 	cp -pPR ${BINLOCATION}/*.so* ${D}${libdir}
 	rm ${D}${libdir}/libpvrPVR2D_DRIWSEGL.so*
-	rm ${D}${libdir}/libsrv_um_dri.so*
+	#rm ${D}${libdir}/libsrv_um_dri.so*
 	rm ${D}${libdir}/pvr_drv.so* 
 
 	install -m 0644 ${BINLOCATION}/*.a ${D}${libdir}
