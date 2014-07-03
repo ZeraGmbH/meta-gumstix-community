@@ -1,0 +1,12 @@
+prefix=%PREFIX%
+exec_prefix=${prefix}
+libdir=%LIBDIR%
+includedir=%INCDIR%
+
+Name: pvr2d
+Description: OMAP 2D sgx wrapper
+Requires.private: 
+Version: %VERSION%
+Libs: -L${libdir} -lpvr2d
+Libs.private: 
+Cflags: -I${includedir}

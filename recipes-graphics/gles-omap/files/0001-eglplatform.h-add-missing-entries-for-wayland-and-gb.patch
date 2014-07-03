@@ -1,0 +1,39 @@
+From 7562db61b5ac371e8e219eaf703276e9f6c26275 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Wed, 18 Jun 2014 15:56:56 +0200
+Subject: [PATCH] eglplatform.h: add missing entries for wayland and gbm
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ targetfs/include/EGL/eglplatform.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+diff --git a/targetfs/include/EGL/eglplatform.h b/targetfs/include/EGL/eglplatform.h
+index ee8f58a..7ba76eb 100644
+--- a/targetfs/include/EGL/eglplatform.h
++++ b/targetfs/include/EGL/eglplatform.h
+@@ -90,6 +90,18 @@ typedef Display *EGLNativeDisplayType;
+ typedef Pixmap   EGLNativePixmapType;
+ typedef Window   EGLNativeWindowType;
+ 
++#elif defined(WL_EGL_PLATFORM)
++
++typedef struct wl_display     *EGLNativeDisplayType;
++typedef struct wl_egl_pixmap  *EGLNativePixmapType;
++typedef struct wl_egl_window  *EGLNativeWindowType;
++
++#elif defined(__GBM__)
++
++typedef struct gbm_device  *EGLNativeDisplayType;
++typedef struct gbm_bo      *EGLNativePixmapType;
++typedef void               *EGLNativeWindowType;
++
+ #else
+ 
+ /* NULLWS fallback */
+-- 
+1.8.3.1
+

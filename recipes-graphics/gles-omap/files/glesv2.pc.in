@@ -1,0 +1,12 @@
+prefix=%PREFIX%
+exec_prefix=${prefix}
+libdir=%LIBDIR%
+includedir=%INCDIR%
+
+Name: glesv2
+Description: OMAP GLESv2 library
+Requires.private: pvr2d
+Version: %VERSION%
+Libs: -L${libdir} -lGLESv2
+Libs.private: 
+Cflags: -I${includedir}
