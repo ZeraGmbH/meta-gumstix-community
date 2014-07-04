@@ -18,6 +18,10 @@ SOPV = "1.9.6.0"
 
 do_install () {
 	oe_runmake install DESTDIR=${D}
+
+	install -d ${D}${sysconfdir}
+	echo "[default]" > ${D}${sysconfdir}/powervr.ini
+	echo "WindowSystem=libpvrws_WAYLAND.so" >> ${D}${sysconfdir}/powervr.ini
 }
 
 PACKAGES += "${PN}-xorg"
