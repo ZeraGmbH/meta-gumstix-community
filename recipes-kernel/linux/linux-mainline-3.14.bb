@@ -70,4 +70,5 @@ SRC_URI = " \
     file://powervr/0004-omap_drm-open-door-for-pvr.patch \
     file://powervr/0005-Revert-drm-Perform-ioctl-command-validation-on-the-s.patch \
     file://powervr/0006-Revert-drm-gem-implement-vma-access-management.patch \
+    file://powervr/0007-Revert-drm-remove-procfs-code-take-2.patch \
 "

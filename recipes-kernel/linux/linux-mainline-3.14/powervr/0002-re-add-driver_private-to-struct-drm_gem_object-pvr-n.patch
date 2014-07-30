@@ -1,7 +1,7 @@
-From ffb3e3e613b264a85351b360b6675c92210baee9 Mon Sep 17 00:00:00 2001
+From 8fb8a44bb048d5f54244166587f873fb6534e8ce Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
 Date: Fri, 13 Jun 2014 13:58:19 +0200
-Subject: [PATCH 2/6] re-add driver_private to struct drm_gem_object - pvr
+Subject: [PATCH 2/7] re-add driver_private to struct drm_gem_object - pvr
  needs it to attach information
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8

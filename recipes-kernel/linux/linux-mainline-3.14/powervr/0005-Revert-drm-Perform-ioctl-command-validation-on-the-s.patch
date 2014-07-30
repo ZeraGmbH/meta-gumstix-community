@@ -1,7 +1,7 @@
-From 0e17feb8c08f855fc93c1a006eecebd205e67115 Mon Sep 17 00:00:00 2001
+From bfe1c5a4e5357d10836f975b87b6df32d5ea23ed Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
 Date: Mon, 23 Jun 2014 17:16:41 +0200
-Subject: [PATCH 5/6] Revert "drm: Perform ioctl command validation on the
+Subject: [PATCH 5/7] Revert "drm: Perform ioctl command validation on the
  stored kernel values"
 
 powervr kernel modules don't define size and direction information for ioctls
