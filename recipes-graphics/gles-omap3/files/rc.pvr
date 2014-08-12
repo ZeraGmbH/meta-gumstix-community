@@ -36,9 +36,6 @@ if [ "$BITSPERPIXEL" = "32" ] ; then
 	fbset -rgba 8/16,8/8,8/0,8/24
 fi
 
-# Try to enable triple buffering when there's enough VRAM
-fbset -vyres $(expr $YRES \* 3)
-
 sgxprepare () {
 	echo Starting PVR
 
