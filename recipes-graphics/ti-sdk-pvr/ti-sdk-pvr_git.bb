@@ -10,7 +10,7 @@ SRC_URI = " \
     file://0001-sgx_options-remove-debug-bit.patch \
 "
 
-SRCREV = "6cc8464b1896ba8bfce2a6bdd0ee3719970902d4"
+SRCREV = "ee7d4ceecdafab0d438dad221f82781e72a3c949"
 PV = "5.01.01.01+git${SRCPV}"
 S = "${WORKDIR}/git/Graphics_SDK/GFX_Linux_KM/"
 
@@ -23,7 +23,7 @@ TI_PLATFORM_omap3 = "omap3630"
 MODULESLOCATION_omap3 = "dc_omapfb3_linux"
 
 # linux-omap-3.5: MAKE_TARGETS = "BUILD=${PVRBUILD} TI_PLATFORM=${TI_PLATFORM} PM_RUNTIME=no"
-MAKE_TARGETS = "BUILD=${PVRBUILD} TI_PLATFORM=${TI_PLATFORM}"
+MAKE_TARGETS = "BUILD=${PVRBUILD} TI_PLATFORM=${TI_PLATFORM} SUPPORT_DRM_FB=1"
 
 do_install() {
     mkdir -p ${D}/lib/modules/${KERNEL_VERSION}/kernel/drivers/gpu/pvr
