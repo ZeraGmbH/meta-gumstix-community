@@ -1,0 +1,32 @@
+From a7c7a7195245c69fa3c0513d32f84e433f0ef25b Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Fri, 1 Aug 2014 12:20:53 +0200
+Subject: [PATCH] omap_fbdev: hack buffer to double
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ drivers/gpu/drm/omapdrm/omap_fbdev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/omapdrm/omap_fbdev.c b/drivers/gpu/drm/omapdrm/omap_fbdev.c
+index 002988d..7f14926 100644
+--- a/drivers/gpu/drm/omapdrm/omap_fbdev.c
++++ b/drivers/gpu/drm/omapdrm/omap_fbdev.c
+@@ -172,9 +172,9 @@ static int omap_fbdev_create(struct drm_fb_helper *helper,
+ 		mode_cmd.pitches[0] = ALIGN(mode_cmd.pitches[0], PAGE_SIZE);
+ 	}
+ 
+-	/* allocate backing bo */
++	/* allocate backing bo for double buffering */
+ 	gsize = (union omap_gem_size){
+-		.bytes = PAGE_ALIGN(mode_cmd.pitches[0] * mode_cmd.height),
++		.bytes = PAGE_ALIGN(mode_cmd.pitches[0] * mode_cmd.height * 2),
+ 	};
+ 	DBG("allocating %d bytes for fb %d", gsize.bytes, dev->primary->index);
+ 	fbdev->bo = omap_gem_new(dev, gsize, OMAP_BO_SCANOUT | OMAP_BO_WC);
+-- 
+1.8.3.1
+

@@ -1,0 +1,52 @@
+From eb65365a727e80084b6159d230d194098eda68a2 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@googlemail.com>
+Date: Wed, 6 Aug 2014 08:11:54 +0200
+Subject: [PATCH] add omap_encoder_wait_for_vsync for pvr
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+inspired by original omapdrm patch [1]
+
+http://lists.freedesktop.org/archives/dri-devel/2011-September/014087.html
+
+Signed-off-by: Andreas Müller <schnitzeltony@googlemail.com>
+---
+ drivers/gpu/drm/omapdrm/omap_drv.h     | 1 +
+ drivers/gpu/drm/omapdrm/omap_encoder.c | 8 ++++++++
+ 2 files changed, 9 insertions(+)
+
+diff --git a/drivers/gpu/drm/omapdrm/omap_drv.h b/drivers/gpu/drm/omapdrm/omap_drv.h
+index 16a7981..c7e799c 100644
+--- a/drivers/gpu/drm/omapdrm/omap_drv.h
++++ b/drivers/gpu/drm/omapdrm/omap_drv.h
+@@ -185,6 +185,7 @@ int omap_encoder_set_enabled(struct drm_encoder *encoder, bool enabled);
+ int omap_encoder_update(struct drm_encoder *encoder,
+ 		struct omap_overlay_manager *mgr,
+ 		struct omap_video_timings *timings);
++int omap_encoder_wait_for_vsync(struct drm_encoder *encoder);
+ 
+ struct drm_connector *omap_connector_init(struct drm_device *dev,
+ 		int connector_type, struct omap_dss_device *dssdev,
+diff --git a/drivers/gpu/drm/omapdrm/omap_encoder.c b/drivers/gpu/drm/omapdrm/omap_encoder.c
+index 5290a88..f823c69 100644
+--- a/drivers/gpu/drm/omapdrm/omap_encoder.c
++++ b/drivers/gpu/drm/omapdrm/omap_encoder.c
+@@ -162,6 +162,14 @@ int omap_encoder_update(struct drm_encoder *encoder,
+ 	return 0;
+ }
+ 
++int omap_encoder_wait_for_vsync(struct drm_encoder *encoder)
++{
++	struct omap_encoder *omap_encoder = to_omap_encoder(encoder);
++	DBG("%s", omap_encoder->dssdev->src->manager->name);
++	return omap_encoder->dssdev->src->manager->wait_for_vsync(omap_encoder->dssdev->src->manager);
++}
++EXPORT_SYMBOL(omap_encoder_wait_for_vsync);
++
+ /* initialize encoder */
+ struct drm_encoder *omap_encoder_init(struct drm_device *dev,
+ 		struct omap_dss_device *dssdev)
+-- 
+1.8.3.1
+
