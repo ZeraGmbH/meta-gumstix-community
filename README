@@ -10,8 +10,8 @@ URI: git://git.yoctoproject.org/meta-ti
 branch: master
 revision: HEAD
 
-Send pull requests to openembedded-devel@lists.openembedded.org with '[meta-gumstix]' in the subject'
+Send pull requests to openembedded-devel@lists.openembedded.org with '[meta-gumstix-community]' in the subject'
 
-When sending single patches, please using something like 'git send-email -1 --to openembedded-devel@lists.openembedded.org --subject-prefix meta-gumstix'
+When sending single patches, please using something like 'git send-email -1 --to openembedded-devel@lists.openembedded.org --subject-prefix meta-gumstix-community'
 
 Layer maintainer: Andreas Müller <schnitzeltony@googlemail.com>
