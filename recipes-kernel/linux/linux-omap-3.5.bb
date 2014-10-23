@@ -55,6 +55,7 @@ SRC_URI = " \
     file://core/0002-remove-inline-functions-for-__kfree_rcu-and-__is_kfr.patch \
     \
     file://wifi/0001-add-libertas_tf_sdio-module.patch \
+    file://wifi/0002-mac80211-fix-crash-with-single-queue-drivers.patch \
 "
 
 
