@@ -53,6 +53,8 @@ SRC_URI = " \
     \
     file://core/0001-perf-Treat-attr.config-as-u64-in-perf_swevent_init.patch \
     file://core/0002-remove-inline-functions-for-__kfree_rcu-and-__is_kfr.patch \
+    \
+    file://wifi/0001-add-libertas_tf_sdio-module.patch \
 "
 
 
