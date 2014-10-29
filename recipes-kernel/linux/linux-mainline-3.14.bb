@@ -65,6 +65,4 @@ SRC_URI = " \
     file://wifi/0011-mmc-omap_hsmmc-Enable-SDIO-interrupts.patch \
     \
     file://powervr/0001-export-symbols-required-by-powervr.patch \
-    file://powervr/0002-omap_fbdev-hack-buffer-to-double.patch \
-    file://powervr/0003-add-omap_encoder_wait_for_vsync-for-pvr.patch \
 "
