@@ -1,4 +1,4 @@
-require u-boot.inc
+require recipes-bsp/u-boot/u-boot.inc
 
 # SPL build
 UBOOT_BINARY = "u-boot.img"
@@ -25,6 +25,8 @@ SRCREV = "62c175fbb8a0f9a926c88294ea9f7e88eb898f6c"
 LIC_FILES_CHKSUM = "file://COPYING;md5=1707d6db1d42237583f50183a5651ecb"
 
 S = "${WORKDIR}/git"
+
+SPL_BINARY = "MLO"
 
 do_deploy_append () {
 	# ship also a version for good old x-loader
