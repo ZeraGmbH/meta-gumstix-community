@@ -1,5 +1,3 @@
-PRINC := "${@int(PRINC) + 1}"
-
 do_install_append() {
 	ln -sf libertas/lbtf_sdio.bin ${D}/lib/firmware/lbtf_sdio.bin
 }
