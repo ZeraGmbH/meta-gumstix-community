@@ -33,8 +33,6 @@ S = "${WORKDIR}/git"
 SPL_BINARY = "MLO"
 
 do_deploy_append () {
-	# ship also a version for good old x-loader
-	install ${S}/u-boot.bin ${DEPLOY_DIR_IMAGE}/u-boot-${MACHINE}-${PV}-${PR}.bin
 	cd ${DEPLOY_DIR_IMAGE}
 	ln -sf ${DEPLOY_DIR_IMAGE}/u-boot-${MACHINE}-${PV}-${PR}.bin u-boot-${MACHINE}.bin
 	ln -sf ${DEPLOY_DIR_IMAGE}/u-boot-${MACHINE}-${PV}-${PR}.bin u-boot.bin
