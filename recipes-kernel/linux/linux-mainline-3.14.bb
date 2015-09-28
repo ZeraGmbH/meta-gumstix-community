@@ -27,6 +27,9 @@ SRC_URI = " \
     \
     file://board_init/0001-board-overo.c-double-NAND-partition-for-kernel-to-8M.patch \
     \
+    file://tcp/0001-tcp_cubic-better-follow-cubic-curve-after-idle-perio.patch \
+    file://tcp/0002-tcp_cubic-do-not-set-epoch_start-in-the-future.patch \
+    \
     file://TWL4030/0001-drivers-rtc-rtc-twl.c-ensure-all-interrupts-are-disabled.patch \
     file://TWL4030/0002-omap2-twl-common-Add-default-power-configuration.patch \
     file://TWL4030/0003-board-overo.c-enable-common-power-data.patch \
