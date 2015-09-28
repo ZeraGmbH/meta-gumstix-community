@@ -14,14 +14,19 @@ PV = "2013.07"
 COMPATIBLE_MACHINE = "overo"
 
 SRC_URI = " \
-	git://www.denx.de/git/u-boot.git;branch=master;protocol=git \
-	file://0001-omap-overo-update-support-for-Micron-1GB-POP.patch \
-	file://0002-cleanup_before_linux-void-Don-t-call-v7_outer_cache_.patch \
-	file://0003-omap-overo-Use-200MHz-SDRC-timings-for-revision-1-2-.patch \
-	file://0005-include-configs-omap3_overo.h-align-kernel-NAND-part.patch \
-	file://0006-set-ext4-as-default-in-bootparams.patch \
-	file://0007-omap3_overo.h-Add-consoleblank-0-to-default-paramete.patch \
-	file://0008-add-bootz-command.patch \
+    git://www.denx.de/git/u-boot.git;branch=master;protocol=git \
+    file://0001-omap-overo-update-support-for-Micron-1GB-POP.patch \
+    file://0002-cleanup_before_linux-void-Don-t-call-v7_outer_cache_.patch \
+    file://0003-omap-overo-Use-200MHz-SDRC-timings-for-revision-1-2-.patch \
+    file://0005-include-configs-omap3_overo.h-align-kernel-NAND-part.patch \
+    file://0006-set-ext4-as-default-in-bootparams.patch \
+    file://0007-omap3_overo.h-Add-consoleblank-0-to-default-paramete.patch \
+    file://0008-add-bootz-command.patch \
+    file://0009-Add-linux-compiler-gcc5.h-to-fix-builds-with-gcc5.patch \
+    file://0010-asm-io.h-fix-build-with-gcc5.patch \
+    file://0011-arm-board-use-__weak.patch \
+    file://0012-common-main.c-make-show_boot_progress-__weak.patch \
+    file://0013-arm-Switch-to-mno-unaligned-access-when-supported-by.patch \
 "
 
 SRCREV = "62c175fbb8a0f9a926c88294ea9f7e88eb898f6c"
