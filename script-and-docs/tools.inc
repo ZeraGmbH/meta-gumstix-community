@@ -7,6 +7,11 @@
 # This script contains some helper functions and can be sourced by other 
 # scripts
 
+
+# default settings
+DEFAULT_MACHINE=overo
+DEFAULT_KERNEL_IMAGE_TYPE=uImage
+
 # SelectCardDevice() creates a dialog to select one of all available removable
 # devices. The path to the selected device is stored in the variale DevicePath.
 SelectCardDevice() {
