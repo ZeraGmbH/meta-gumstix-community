@@ -8,9 +8,6 @@
 # select card device a dialog based GUI is used. To work properly
 # the OE environment variable OE_BUILD_TMPDIR must be set.
 
-DEFAULT_MACHINE=overo
-DEFAULT_KERNEL_IMAGE_TYPE=uImage
-
 SelectKernel() {
 	# OE environment found?
 	if [ -z $OE_BASE ]; then
