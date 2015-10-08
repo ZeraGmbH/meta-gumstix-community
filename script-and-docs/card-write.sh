@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # write-card.sh
-# (c) Copyright 2013 Andreas Müller <schnitzeltony@googlemail.com>
+# (c) Copyright 2013-2015 Andreas Müller <schnitzeltony@googlemail.com>
 # Licensed under terms of GPLv2
 #
 # This script writes all data (MLO / u-boot / kernel / rootfs) to SDCard. To
