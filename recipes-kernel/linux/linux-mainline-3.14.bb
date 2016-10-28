@@ -24,6 +24,7 @@ SRC_URI = " \
     ${OVERO_BOOT_SPLASH} \
     \
     file://core/0001-OMAP3-output-further-revision-information.patch \
+    file://core/0001-compiler-gcc-integrate-the-various-compiler-gcc-345-.patch \
     \
     file://board_init/0001-board-overo.c-double-NAND-partition-for-kernel-to-8M.patch \
     \

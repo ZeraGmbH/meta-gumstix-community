@@ -175,4 +175,6 @@ python () {
     if 'CONFIG_KERNEL_LZ4=y\n' in configfile.readlines():
         depends = d.getVar('DEPENDS', False)
         d.setVar('DEPENDS', depends + ' lz4-native')
+
+    configfile.close()
 }
