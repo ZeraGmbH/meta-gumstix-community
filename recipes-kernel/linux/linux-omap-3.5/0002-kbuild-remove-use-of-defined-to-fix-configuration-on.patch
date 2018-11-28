@@ -1,0 +1,39 @@
+From f1ecfc9a2b4db02197af77e199ae9b0358bcfac6 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Wed, 28 Nov 2018 11:56:27 +0100
+Subject: [PATCH] kbuild: remove use of defined to fix configuration on recent
+ perl
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ kernel/timeconst.pl | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/kernel/timeconst.pl b/kernel/timeconst.pl
+index eb51d76e058..bdcbc7997df 100644
+--- a/kernel/timeconst.pl
++++ b/kernel/timeconst.pl
+@@ -270,7 +270,7 @@ sub outputval($$)
+ 	my($name, $val) = @_;
+ 	my $csuf;
+ 
+-	if (defined($val)) {
++	if ($val) {
+ 	    if ($name !~ /SHR/) {
+ 		$val = "U64_C($val)";
+ 	    }
+@@ -370,7 +370,7 @@ if ($hz eq '--can') {
+ 	}
+ 
+ 	@val = @{$canned_values{$hz}};
+-	if (!defined(@val)) {
++	if (!@val) {
+ 		@val = compute_values($hz);
+ 	}
+ 	output($hz, @val);
+-- 
+2.14.5
+

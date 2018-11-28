@@ -12,6 +12,7 @@ SRC_URI = " \
     ${SRC_URI_COMMON} \
     \
     file://0001-Revert-ARM-OMAP-SoC-detection-remove-unused-cpu_is-m.patch \
+    file://0002-kbuild-remove-use-of-defined-to-fix-configuration-on.patch \
     \
     file://board_init/0001-board-overo.c-double-NAND-partition-for-kernel-to-8M.patch \
     \
