@@ -1,0 +1,30 @@
+From fe1036202d522ad677c37d23bda871f98eb07c9e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Thu, 29 Nov 2018 10:57:13 +0100
+Subject: [PATCH] Add stdint.h include
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+| fw_env.c:64:2: error: unknown type name 'uint8_t'
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ tools/env/fw_env.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/tools/env/fw_env.c b/tools/env/fw_env.c
+index e292d2ba1d..3426273ede 100644
+--- a/tools/env/fw_env.c
++++ b/tools/env/fw_env.c
+@@ -29,6 +29,7 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <stddef.h>
++#include <stdint.h>
+ #include <string.h>
+ #include <sys/types.h>
+ #include <sys/ioctl.h>
+-- 
+2.14.5
+
