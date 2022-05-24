@@ -11,7 +11,7 @@ PV = "2012.07"
 COMPATIBLE_MACHINE = "overo"
 
 SRC_URI = " \
-	git://www.denx.de/git/u-boot.git;branch=master;protocol=git \
+	git://github.com/u-boot/u-boot.git;branch=master;protocol=ssh \
 	file://0002-cleanup_before_linux-void-Don-t-call-v7_outer_cache_.patch \
 	file://0003-config-Always-use-GNU-ld.patch \
 	file://0004-overo-fix-crashes-for-boards-revision-1.patch \
