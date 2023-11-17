@@ -14,6 +14,9 @@ SRC_URI = " \
     file://0001-Revert-ARM-OMAP-SoC-detection-remove-unused-cpu_is-m.patch \
     file://0002-kbuild-remove-use-of-defined-to-fix-configuration-on.patch \
     \
+    file://sdrc/0001-omap2_sdrc_get_params-Print-rate-received.patch \
+    file://sdrc/0002-Detect-and-setup-Micron-MT29C4G48MAZBBAKB-48-properl.patch \
+    \
     file://board_init/0001-board-overo.c-double-NAND-partition-for-kernel-to-8M.patch \
     \
     file://USB/0001-Revert-Fix-OMAP-EHCI-suspend-resume-failure-i693.patch \

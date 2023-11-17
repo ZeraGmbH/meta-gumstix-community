@@ -1,0 +1,28 @@
+From b614c730738edd2ffde105fcd66c22cd69f5980e Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Thu, 16 Nov 2023 20:14:57 +0100
+Subject: [PATCH] omap2_sdrc_get_params: Print rate received
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ arch/arm/mach-omap2/sdrc.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/arch/arm/mach-omap2/sdrc.c b/arch/arm/mach-omap2/sdrc.c
+index e3d345f46409..0e09591d9004 100644
+--- a/arch/arm/mach-omap2/sdrc.c
++++ b/arch/arm/mach-omap2/sdrc.c
+@@ -94,6 +94,7 @@ int omap2_sdrc_get_params(unsigned long r,
+ {
+ 	struct omap_sdrc_params *sp0, *sp1;
+ 
++	printk(KERN_INFO "omap2_sdrc_get_params rate received: %lu\n", r);
+ 	if (!sdrc_init_params_cs0)
+ 		return -1;
+ 
+-- 
+2.41.0
+
