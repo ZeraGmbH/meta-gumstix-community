@@ -1,0 +1,29 @@
+From 33c294fd1fc81d88f1ff6346f4ddc353a42bcd91 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Fri, 17 Nov 2023 18:14:24 +0100
+Subject: [PATCH] Adjust default screen settings to what WM supports
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ include/configs/omap3_overo.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/omap3_overo.h b/include/configs/omap3_overo.h
+index d29b3266c0..1086e6438c 100644
+--- a/include/configs/omap3_overo.h
++++ b/include/configs/omap3_overo.h
+@@ -152,7 +152,7 @@
+ 	"mpurate=500\0" \
+ 	"optargs=\0" \
+ 	"vram=12M\0" \
+-	"dvimode=1024x768MR-16@60\0" \
++	"dvimode=1024x600M-24@60\0" \
+ 	"defaultdisplay=dvi\0" \
+ 	"mmcdev=0\0" \
+ 	"mmcroot=/dev/mmcblk0p2 rw\0" \
+-- 
+2.41.0
+

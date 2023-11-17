@@ -1,0 +1,75 @@
+From b7b70f98f76da7a14b472c07fc68f903dcef8b96 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Fri, 17 Nov 2023 18:03:42 +0100
+Subject: [PATCH] Update memory timings
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Stolen from 2016.03 / board/overo/spl.c
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ board/overo/overo.c | 25 ++++++++++++++++---------
+ board/overo/overo.h |  2 ++
+ 2 files changed, 18 insertions(+), 9 deletions(-)
+
+diff --git a/board/overo/overo.c b/board/overo/overo.c
+index f973870830..b5f9eb304e 100644
+--- a/board/overo/overo.c
++++ b/board/overo/overo.c
+@@ -163,22 +163,29 @@ void get_board_mem_timings(u32 *mcfg, u32 *ctrla, u32 *ctrlb, u32 *rfr_ctrl,
+ 	*mr = MICRON_V_MR_165;
+ 	switch (get_board_revision()) {
+ 	case REVISION_0: /* Micron 1286MB/256MB, 1/2 banks of 128MB */
+-		*mcfg = MICRON_V_MCFG_165(128 << 20);
++		*mcfg = MICRON_V_MCFG_165(256 << 20);
+ 		*ctrla = MICRON_V_ACTIMA_165;
+ 		*ctrlb = MICRON_V_ACTIMB_165;
+ 		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
+ 		break;
+ 	case REVISION_1: /* Micron 256MB/512MB, 1/2 banks of 256MB */
+-		*mcfg = MICRON_V_MCFG_165(256 << 20);
+-		*ctrla = MICRON_V_ACTIMA_165;
+-		*ctrlb = MICRON_V_ACTIMB_165;
+-		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
++	case REVISION_4:
++		*mcfg = MICRON_V_MCFG_200(256 << 20);
++		*ctrla = MICRON_V_ACTIMA_200;
++		*ctrlb = MICRON_V_ACTIMB_200;
++		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+ 		break;
+ 	case REVISION_2: /* Hynix 256MB/512MB, 1/2 banks of 256MB */
+-		*mcfg = HYNIX_V_MCFG_165(256 << 20);
+-		*ctrla = HYNIX_V_ACTIMA_165;
+-		*ctrlb = HYNIX_V_ACTIMB_165;
+-		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_165MHz;
++		*mcfg = HYNIX_V_MCFG_200(256 << 20);
++		*ctrla = HYNIX_V_ACTIMA_200;
++		*ctrlb = HYNIX_V_ACTIMB_200;
++		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
++		break;
++	case REVISION_3: /* Micron 512MB/1024MB, 1/2 banks of 512MB */
++		*mcfg = MCFG(512 << 20, 15);
++		*ctrla = MICRON_V_ACTIMA_200;
++		*ctrlb = MICRON_V_ACTIMB_200;
++		*rfr_ctrl = SDP_3430_SDRC_RFR_CTRL_200MHz;
+ 		break;
+ 	default:
+ 		*mcfg = MICRON_V_MCFG_165(128 << 20);
+diff --git a/board/overo/overo.h b/board/overo/overo.h
+index b41b628899..80ae092f8b 100644
+--- a/board/overo/overo.h
++++ b/board/overo/overo.h
+@@ -37,6 +37,8 @@ const omap3_sysinfo sysinfo = {
+ #define REVISION_0	0x0
+ #define REVISION_1	0x1
+ #define REVISION_2	0x2
++#define REVISION_3	0x3
++#define REVISION_4	0x4
+ 
+ /*
+  * IEN  - Input Enable
+-- 
+2.41.0
+

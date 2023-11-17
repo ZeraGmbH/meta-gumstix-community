@@ -1,0 +1,29 @@
+From 3ec847ac242a14a905920312d8cf377f280f72a4 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Andreas=20M=C3=BCller?= <schnitzeltony@gmail.com>
+Date: Fri, 17 Nov 2023 18:22:06 +0100
+Subject: [PATCH] Set mpurate=auto
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Signed-off-by: Andreas Müller <schnitzeltony@gmail.com>
+---
+ include/configs/omap3_overo.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/include/configs/omap3_overo.h b/include/configs/omap3_overo.h
+index 1086e6438c..e49e6b23c3 100644
+--- a/include/configs/omap3_overo.h
++++ b/include/configs/omap3_overo.h
+@@ -149,7 +149,7 @@
+ #define CONFIG_EXTRA_ENV_SETTINGS \
+ 	"loadaddr=0x82000000\0" \
+ 	"console=ttyO2,115200n8 consoleblank=0\0" \
+-	"mpurate=500\0" \
++	"mpurate=auto\0" \
+ 	"optargs=\0" \
+ 	"vram=12M\0" \
+ 	"dvimode=1024x600M-24@60\0" \
+-- 
+2.41.0
+
