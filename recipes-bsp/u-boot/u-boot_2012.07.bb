@@ -20,6 +20,8 @@ SRC_URI = " \
 	file://0007-omap3_overo.h-Add-consoleblank-0-to-default-paramete.patch \
     file://0008-Add-stdint.h-include.patch \
     file://0009-Adjust-default-screen-settings-to-what-WM-supports.patch \
+    file://0010-Set-mpurate-auto.patch \
+    file://0011-Reduce-bootdelay-to-1s.patch \
 "
 
 SRCREV = "190649fb4309d1bc0fe7732fd0f951cb6440f935"
